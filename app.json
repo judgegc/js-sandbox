@@ -1,0 +1,5 @@
+{
+    "name": "js-sandbox",
+    "description": "JavaScript sandbox discord bot",
+    "image": "heroku/nodejs"
+  }

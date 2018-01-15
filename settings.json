@@ -1,0 +1,18 @@
+{
+    "bot-token": "bot-token",
+    "commands-prefix": "!",
+    "super-admin": "313410675751911434",
+    "response-max-lines": 10,
+    "message-max-length": 2000,
+    "update-status-interval": 30000,
+    "js-sandbox": {
+        "prefix": [
+            "js",
+            "javascript"
+        ],
+        "memory-limit": 16
+    },
+    "emoji-collector": {
+        "auto-save": 10000
+    }
+}
