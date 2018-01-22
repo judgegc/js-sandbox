@@ -98,6 +98,10 @@ class EmojiUsageCollector extends EventEmitter {
     }
 
     onAddReaction(reaction, user) {
+        if (!Util.isGuildTextChannel(reaction.message)) {
+            return;
+        }
+
         if (this.client.user.id === user.id || user.bot) {
             return;
         }
@@ -112,6 +116,10 @@ class EmojiUsageCollector extends EventEmitter {
     }
 
     onRemoveReaction(reaction, user) {
+        if (!Util.isGuildTextChannel(reaction.message)) {
+            return;
+        }
+
         if (this.client.user.id === user.id || user.bot) {
             return;
         }
@@ -126,6 +134,10 @@ class EmojiUsageCollector extends EventEmitter {
     }
 
     onMessage(msg) {
+        if (!Util.isGuildTextChannel(msg)) {
+            return;
+        }
+
         if (this.client.user.id === msg.author.id || msg.author.bot) {
             return;
         }
@@ -143,6 +155,10 @@ class EmojiUsageCollector extends EventEmitter {
     }
 
     onUpdateMessage(oldMsg, newMsg) {
+        if (!Util.isGuildTextChannel(oldMsg)) {
+            return;
+        }
+
         if (this.client.user.id === oldMsg.author.id || oldMsg.author.bot) {
             return;
         }
@@ -179,6 +195,10 @@ class EmojiUsageCollector extends EventEmitter {
     }
 
     onMessageDelete(msg) {
+        if (!Util.isGuildTextChannel(msg)) {
+            return;
+        }
+
         if (this.client.user.id === msg.author.id || msg.author.bot) {
             return;
         }

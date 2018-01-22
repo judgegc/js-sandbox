@@ -3,6 +3,10 @@ class Util {
         return msg.channel.type === 'dm';
     }
 
+    static isGuildTextChannel(msg) {
+        return msg.channel.type === 'text';
+    }
+
     static isInteger(val) {
         return /^\d+$/.test(val);
     }

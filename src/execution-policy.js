@@ -1,5 +1,6 @@
 const settings = require('../settings.json');
 const Services = require('./services');
+const Util = require('./util');
 
 class ExecutionPolicy {
     constructor(commands) {
@@ -18,6 +19,10 @@ class ExecutionPolicy {
         return server + command;
     }
     check(msg, command) {
+        if (!Util.isGuildTextChannel(msg)) {
+            return false;
+        }
+
         if (command.type !== 'command') {
             return true;
         }
