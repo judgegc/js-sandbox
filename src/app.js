@@ -69,7 +69,7 @@ class App {
         client.on('ready', async () => {
             console.log(`Logged in as ${client.user.tag}!`);
             collector.init();
-            updateTitleTimer = setInterval(() => client.user.setGame('Up: ' + prettyMs(process.uptime() * 1000)), Number.parseInt(settings['update-status-interval']));
+            updateTitleTimer = setInterval(() => client.user.setActivity('Up: ' + prettyMs(process.uptime() * 1000)), Number.parseInt(settings['update-status-interval']));
         });
 
         client.on('disconnect', () => {
