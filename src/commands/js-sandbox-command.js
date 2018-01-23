@@ -39,6 +39,11 @@ class JsSandboxCommand {
             }));
             this.sandbox.pushData('members', members);
 
+            const channels = [...msg.guild.channels]
+                .filter(c => ['text', 'voice'].indexOf(c[1].type) >= 0)
+                .map(c => ({ id: c[0], name: c[1].name, type: c[1].type, createdTimestamp: c[1].createdTimestamp }));
+            this.sandbox.pushData('channels', channels);
+
             this.sandbox.pushData('roles', [...msg.channel.guild.roles.filter(r => r.name !== '@everyone')].map(r => ({
                 color: r[1].color,
                 createdTimestamp: r[1].createdTimestamp,
