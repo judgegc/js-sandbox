@@ -1,23 +1,10 @@
 const settings = require('../settings.json');
 
 const Services = require('./services');
-const JsSandboxCommand = require('./commands/js-sandbox-command');
-const GcCommand = require('./commands/gc-command');
-const MemoryUsageCommand = require('./commands/memory-usage-command');
-const SayCommand = require('./commands/say-command');
-const UnknownCommand = require('./commands/unknown-command');
-const ReactCommand = require('./commands/react-command');
-const ReactStrCommand = require('./commands/react-str-command');
-const ServersCommand = require('./commands/servers-command');
-const SubscribeCommand = require('./commands/subscribe-command');
-const UnsubscribeCommand = require('./commands/unsubscribe-command');
-const ColorCommand = require('./commands/color-command');
-const PinCommand = require('./commands/pin-command');
-const UnpinCommand = require('./commands/unpin-command');
-const EmojiUsageStatsCommand = require('./commands/emoji-usage-stats-command');
-const SaveCustomCommand = require('./commands/save-custom-comand');
-const RemoveCustomCommand = require('./commands/remove-custom-command');
-const CommandListCommand = require('./commands/command-list-commands');
+
+const { JsSandboxCommand, GcCommand, MemoryUsageCommand, SayCommand, UnknownCommand, ReactCommand, ReactStrCommand, ServersCommand,
+    SubscribeCommand, UnsubscribeCommand, ColorCommand, PinCommand, UnpinCommand, EmojiUsageStatsCommand,
+    SaveCustomCommand, RemoveCustomCommand, CommandListCommand } = require('./commands');
 
 class CommandProcessor {
     constructor() {
