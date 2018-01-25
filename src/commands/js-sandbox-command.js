@@ -19,6 +19,7 @@ class JsSandboxCommand {
                 id: m.user.id,
                 bot: m.user.bot,
                 username: m.user.username,
+                tag: m.user.tag,
                 discriminator: m.user.discriminator,
                 joinedTimestamp: m.joinedTimestamp,
                 roles: m.roles
