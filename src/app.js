@@ -85,6 +85,10 @@ class App {
                 return;
             }
 
+            if (!Util.isGuildTextChannel(msg)) {
+                return;
+            }
+
             const mock = msgParser.parse(msg.content);
 
             if (!(cmdProc.hasCustomCommand(msg.guild.id, mock.name) || guard.check(msg, mock))) {
