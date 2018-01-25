@@ -17,6 +17,7 @@ const UnpinCommand = require('./commands/unpin-command');
 const EmojiUsageStatsCommand = require('./commands/emoji-usage-stats-command');
 const SaveCustomCommand = require('./commands/save-custom-comand');
 const RemoveCustomCommand = require('./commands/remove-custom-command');
+const CommandListCommand = require('./commands/command-list-commands');
 
 class CommandProcessor {
     constructor() {
@@ -33,7 +34,8 @@ class CommandProcessor {
             pin: PinCommand,
             unpin: UnpinCommand,
             emjrating: EmojiUsageStatsCommand,
-            rmcmd: RemoveCustomCommand
+            rmcmd: RemoveCustomCommand,
+            cmdlist: CommandListCommand
         };
         this._customCommands = new Map();
         this.rCustomHeader = /^(['"])custom command\1;?$/;
@@ -42,7 +44,7 @@ class CommandProcessor {
     }
 
     isCustomCmdSOurceCode(content) {
-        const lines = content.split(/\r\n|\r|\n/, 1);
+        const lines = content.split(this.rNewLine, 1);
         return lines.length && this.rCustomHeader.test(lines[0]);
     }
 
@@ -106,6 +108,10 @@ class CommandProcessor {
     hasCustomCommand(server, name) {
         const commands = this._customCommands.get(server);
         return commands && commands.has(name);
+    }
+
+    getCustomCommands(serverId) {
+        return this._customCommands.get(serverId);
     }
 
     get commands() {
