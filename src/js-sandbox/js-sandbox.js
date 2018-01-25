@@ -2,10 +2,10 @@ const childProcess = require('child_process');
 const ResponseSizeFilter = require('./../filters/response-size-filter');
 
 class JsSandbox {
-    constructor(code, memoryLimit) {
+    constructor(code, args, memoryLimit) {
         this.code = code;
         this.memoryLimit = Number.parseInt(memoryLimit);
-        this.data = {};
+        this.data = { args };
     }
     pushData(name, val) {
         this.data[name] = val;

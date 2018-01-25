@@ -7,6 +7,7 @@ const Util = require('./util');
 const settings = require('./../settings.json');
 const JsSandboxCommand = require('./commands/js-sandbox-command');
 const CommandProcessor = require('./command-processor');
+const PersistentCommandProcessor = require('./persistent-command-processor');
 
 const CustomEmojiFilter = require('./filters/custom-emoji-filter');
 const ChannelMentionResolver = require('./filters/channel-mention-resolver');
@@ -32,7 +33,10 @@ class App {
         }
 
         const msgParser = new MessageParser();
-        const cmdProc = new CommandProcessor();
+
+        const cmdProc = new PersistentCommandProcessor(Services.resolve('storage'));
+        await cmdProc.loadCustomCommands();
+
         const client = new Discord.Client({ autoReconnect: true });
 
         const statsStorage = new EmojiStatsStorage();
@@ -83,11 +87,11 @@ class App {
 
             const mock = msgParser.parse(msg.content);
 
-            if (!guard.check(msg, mock)) {
+            if (!(cmdProc.hasCustomCommand(msg.guild.id, mock.name) || guard.check(msg, mock))) {
                 return;
             }
 
-            const command = cmdProc.process(mock);
+            const command = cmdProc.process(mock, msg.guild.id);
 
             try {
                 let response = await command.execute(client, msg);

@@ -10,7 +10,7 @@ class ResponseSizeFilter {
         if (!this.response) {
             return undefined;
         }
-        if (this.response.split(/[\n\r]{1}/)
+        if (this.response.split(/\r\n|\r|\n/)
             .filter(l => l.length).length > this.responseMaxLines) {
             return 'Response limit ' + this.responseMaxLines + ' lines.';
         } else if (this.response.length > this.messageMaxLength) {

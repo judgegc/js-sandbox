@@ -19,6 +19,7 @@ process.on('message', data => {
 
             vm.freeze(Stat, 'Stat');
             vm.freeze(externalData, 'external');
+            vm.freeze(externalData.args, 'arguments');
             const result = vm.run(data.data);
 
             if (result && !response.length) {

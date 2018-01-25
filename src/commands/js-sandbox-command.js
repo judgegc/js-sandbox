@@ -3,8 +3,8 @@ const JsSandbox = require('./../js-sandbox/js-sandbox');
 const Discord = require('discord.js');
 
 class JsSandboxCommand {
-    constructor(code, memoryLimit) {
-        this.sandbox = new JsSandbox(code, memoryLimit);
+    constructor(code, args, memoryLimit) {
+        this.sandbox = new JsSandbox(code, args, memoryLimit);
     }
 
     _readablePermissions(permissions) {
