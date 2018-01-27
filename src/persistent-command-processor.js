@@ -14,9 +14,9 @@ class PersistentCommandProcessor extends CommandProcessor {
                 const [serverId, name] = doc._id.split(this.INDEX_DELIM);
                 const server = this._customCommands.get(serverId);
                 if (server) {
-                    server.set(name, { owner: doc.owner, sourceCode: doc.sourceCode });
+                    server.set(name, { owner: doc.owner, desc: doc.desc, sourceCode: doc.sourceCode });
                 } else {
-                    this._customCommands.set(serverId, new Map([[name, { owner: doc.owner, sourceCode: doc.sourceCode }]]));
+                    this._customCommands.set(serverId, new Map([[name, { owner: doc.owner, desc: doc.desc, sourceCode: doc.sourceCode }]]));
                 }
             });
     }
