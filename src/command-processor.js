@@ -27,7 +27,7 @@ class CommandProcessor {
         this._customCommands = new Map();
         this.rCustomHeader = /^(['"])custom command\1;?$/;
         this.rCustomName = /^(['"])cmd=(\w+)\1;?$/;
-        this.rCustomDesc = /^(['"])desc=([\w\s]+)\1;?$/;
+        this.rCustomDesc = /^(['"])desc=(.+)\1;?$/;
         this.rNewLine = /\r\n|\r|\n/;
     }
 
