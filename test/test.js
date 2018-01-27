@@ -77,19 +77,19 @@ describe('MessageParser', function () {
     describe('parse', function () {
         const parser = new MessageParser();
         it('should return command without args', function () {
-            assert.deepEqual({ type: 'command', name: 'watch', args: [] }, parser.parse('$watch'));
+            assert.deepEqual({ type: 'command', name: 'watch', args: [] }, parser.parse('!watch'));
         });
 
         it('should return command with one args', function () {
-            assert.deepEqual({ type: 'command', name: 'watch', args: ['1'] }, parser.parse('$watch 1'));
+            assert.deepEqual({ type: 'command', name: 'watch', args: ['1'] }, parser.parse('!watch 1'));
         });
 
         it('should return command with one args', function () {
-            assert.deepEqual({ type: 'command', name: 'gc', args: ['--all'] }, parser.parse('$gc --all'));
+            assert.deepEqual({ type: 'command', name: 'gc', args: ['--all'] }, parser.parse('!gc --all'));
         });
 
         it('should return command with two args', function () {
-            assert.deepEqual({ type: 'command', name: 'gc', args: ['--name', 'Bot name'] }, parser.parse('$gc --name "Bot name"'));
+            assert.deepEqual({ type: 'command', name: 'gc', args: ['--name', 'Bot name'] }, parser.parse('!gc --name "Bot name"'));
         });
 
         it('should return js source code ', function () {
@@ -116,18 +116,18 @@ describe('Commands', function () {
             };
 
             it('should return execution result', function () {
-                return new JsSandboxCommand('console.log(42)', settings['js-sandbox']['memory-limit']).execute(client, msg)
+                return new JsSandboxCommand('console.log(42)', [], settings['js-sandbox']['memory-limit']).execute(client, msg)
                     .then(x => assert(x === '42', 'Wrong answer. Expected 42'));
             });
 
             it('should return execution error', function () {
-                return new JsSandboxCommand('aaa', settings['js-sandbox']['memory-limit']).execute(client, msg)
+                return new JsSandboxCommand('aaa', [], settings['js-sandbox']['memory-limit']).execute(client, msg)
                     .then(x => assert(x === 'ReferenceError: aaa is not defined', 'Wrong answer. Expected 42'));
             });
 
             it('should return memory limit error', function () {
                 return new JsSandboxCommand('var s = [1,2,3];while(true) { s = s.concat(s);}'
-                    , settings['js-sandbox']['memory-limit']).execute(client, msg)
+                    , [], settings['js-sandbox']['memory-limit']).execute(client, msg)
                     .then(x => assert(x === 'Error: Sandbox memory limit reached', 'Wrong answer. Expected 42'));
             });
         });
@@ -248,7 +248,7 @@ describe('CommandProcessor', function () {
     describe('process', function () {
         const cmdProc = new CommandProcessor();
         it('should return JsSandboxCommand instance', function () {
-            assert.deepEqual(new JsSandboxCommand('console.log(42)', settings['js-sandbox']['memory-limit']),
+            assert.deepEqual(new JsSandboxCommand('console.log(42)', [], settings['js-sandbox']['memory-limit']),
                 cmdProc.process({ type: 'source_code', language: 'js', content: 'console.log(42)' }));
         });
 
