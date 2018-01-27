@@ -23,7 +23,7 @@ class CommandListCommand {
 
         if (this.args.length >= 1 && this.args[0] === '--my') {
             return Promise
-                .resolve([...serverCommands].filter(cmd => cmd[1].owner === msg.author.id).map(cmd => `${cmd[0]} — ${resolveUsername(cmd[1].owner)}`).join('\n'));
+                .resolve([...serverCommands].filter(cmd => cmd[1].owner === msg.author.id).map(cmd => `${cmd[0]} — ${resolveUsername(cmd[1].owner)} - ${cmd[1].desc ? cmd[1].desc : ''}`).join('\n'));
         }
 
         return Promise.reject();
