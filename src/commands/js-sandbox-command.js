@@ -19,7 +19,9 @@ class JsSandboxCommand {
                 id: m.user.id,
                 bot: m.user.bot,
                 username: m.user.username,
+                game: m.user.presence.game && m.user.presence.game.name,
                 tag: m.user.tag,
+                status: m.user.presence.status,
                 discriminator: m.user.discriminator,
                 joinedTimestamp: m.joinedTimestamp,
                 roles: m.roles
