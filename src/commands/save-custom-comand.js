@@ -14,7 +14,7 @@ class SaveCustomCommand {
         try {
             await Services
                 .resolve('commandprocessor')
-                .createCommand(msg.guild.id, this.args[0], msg.author.id, this.args[1]);
+                .createCommand(msg.guild.id, this.args[0], this.args[1], msg.author.id, this.args[2]);
         } catch (e) {
             return e.message;
         }

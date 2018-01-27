@@ -27,6 +27,7 @@ class CommandProcessor {
         this._customCommands = new Map();
         this.rCustomHeader = /^(['"])custom command\1;?$/;
         this.rCustomName = /^(['"])cmd=(\w+)\1;?$/;
+        this.rCustomDesc = /^(['"])desc=(\w+)\1;?$/;
         this.rNewLine = /\r\n|\r|\n/;
     }
 
@@ -38,14 +39,15 @@ class CommandProcessor {
     process(command, serverId) {
         if (command.type === 'source_code' && settings['js-sandbox']['prefix'].includes(command.language)) {
             if (this.isCustomCmdSOurceCode(command.content)) {
-                const lines = command.content.split(this.rNewLine, 2);
-                if (lines.length === 2) {
-                    const found = lines[1].match(this.rCustomName);
-                    if (found) {
-                        return new SaveCustomCommand([found[2], command.content]);
-                    } else {
+                const lines = command.content.split(this.rNewLine, 3);
+                if (lines.length >= 2) {
+                    const cmdNameFound = lines[1].match(this.rCustomName);
+                    var descFound = lines[2].match(this.rCustomDesc);
+                    if (!cmdNameFound) {
                         return new SayCommand(['Syntax error. Expected `\'cmd=name\'`']);
                     }
+                    descFound = descFound ? descFound[2] : '';
+                    return new SaveCustomCommand([cmdNameFound[2], descFound, command.content]);
                 }
             }
             return new JsSandboxCommand(command.content, [], settings['js-sandbox']['memory-limit']);
@@ -65,7 +67,7 @@ class CommandProcessor {
         return new UnknownCommand();
     }
 
-    createCommand(server, name, owner, sourceCode) {
+    createCommand(server, name, desc, owner, sourceCode) {
         const client = Services.resolve('client');
         const perUserLimit = settings['js-sandbox']['custom-commands-per-user'];
         const serverCommands = this._customCommands.get(server);
@@ -79,9 +81,9 @@ class CommandProcessor {
                 throw Error(`Maximum number of commands per user has been reached. (${perUserLimit})`);
             }
 
-            serverCommands.set(name, { owner, sourceCode });
+            serverCommands.set(name, { owner, desc, sourceCode });
         } else {
-            this._customCommands.set(server, new Map([[name, { owner, sourceCode }]]));
+            this._customCommands.set(server, new Map([[name, { owner, desc, sourceCode }]]));
         }
     }
 
