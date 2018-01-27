@@ -12,7 +12,12 @@ process.on('message', data => {
     } else if (data.type === 'source_code') {
         let startTime = 0;
         const response = [];
+        let result;
         let pendingCbs = 0;
+
+        function hasResult() {
+            return typeof result === 'number' ? true : !!result;
+        }
 
         function sendAndExit() {
             process.send(response.join('\n'));
@@ -50,11 +55,7 @@ process.on('message', data => {
             vm.freeze(externalData.args, 'arguments');
             //vm.freeze(request, 'request');
             startTime = Date.now();
-            const result = vm.run(data.data);
-
-            if (result && !response.length) {
-                response.push(typeof result === 'object' ? JSON.stringify(result) : result);
-            }
+            result = vm.run(data.data);
         }
         catch (e) {
             if (e) {
@@ -63,6 +64,9 @@ process.on('message', data => {
         }
 
         if (!pendingCbs) {
+            if (hasResult() && !response.length) {
+                response.push(typeof result === 'object' ? JSON.stringify(result) : result);
+            }
             process.send(response.join('\n'));
             process.exit();
         }
