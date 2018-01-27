@@ -73,3 +73,7 @@ process.on('message', data => {
         }, EXECUTION_TIMEOUT - Date.now() + startTime);
     }
 });
+
+process.on('uncaughtException', (err) => {
+    process.send('Async exception: Something wrong happens');
+});
