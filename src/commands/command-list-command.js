@@ -12,7 +12,7 @@ class CommandListCommand {
         };
         const cmdProc = Services.resolve('commandprocessor');
         const serverCommands = cmdProc.getCustomCommands(msg.guild.id);
-        if (!serverCommands) {
+        if (!(serverCommands && serverCommands.size > 0)) {
             return Promise.resolve('Nothing here');
         }
 
