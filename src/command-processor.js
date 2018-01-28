@@ -46,6 +46,9 @@ class CommandProcessor {
                     if (!cmdNameFound) {
                         return new SayCommand(['Syntax error. Expected `\'cmd=name\'`']);
                     }
+                    if (this._commands.hasOwnProperty(cmdNameFound[2])) {
+                        return new SayCommand([`\`${cmdNameFound[2]}\` is reserved`]);
+                    }
                     descFound = descFound ? descFound[2] : '';
                     return new SaveCustomCommand([cmdNameFound[2], descFound, command.content]);
                 }
