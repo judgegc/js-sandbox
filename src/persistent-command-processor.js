@@ -33,7 +33,7 @@ class PersistentCommandProcessor extends CommandProcessor {
 
     getCommandOwner(serverId, name) {
         const serverCommands = this._customCommands.get(serverId);
-        if (serverId) {
+        if (serverCommands) {
             const cmdObj = serverCommands.get(name);
             return cmdObj && cmdObj.owner;
         }
