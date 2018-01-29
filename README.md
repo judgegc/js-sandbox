@@ -1,11 +1,18 @@
 # **js-sandbox**
 
+[Commands](#comands)
+
+[Custom commands](#custom-commands)
+
+[Http](#http)
+
+[Installation](#how-install)
 
 **Built-in modules**
 
 * [Simple-statistics](https://github.com/simple-statistics/simple-statistics)
 
-**Commands**
+## Commands
 
 `!gc` - delete last 100 bot messages in current channel
 
@@ -70,4 +77,38 @@ request('http://api.ipify.org/?format=json', function (error, response, body) {
 Http available for custom commands too.
 
 
+# How install
 
+## **Own server**
+
+Clone repository
+
+`git clone https://github.com/judgegc/js-sandbox.git`
+
+Join to dir
+
+`cd js-sandbox`
+
+### **With docker compose**
+Build image
+
+`docker-compose build`
+
+Run containers as daemon: js-sandbox + mongodb
+
+`docker-compose up -d`
+
+
+### **Without docker compose**
+
+Build app container with js-sandbox bot
+
+```docker build -t jssanbox .```
+
+Run mongodb container
+
+`docker run --name mongo -d mongo:3.6.2`
+
+Run app
+
+`docker run --name jssanbox --link mongo:mongo -d --env_file envfile jssandbox`
