@@ -72,7 +72,11 @@ process.on('message', data => {
         }
 
         setTimeout(() => {
-            process.send(response.join('\n'));
+            if (response.length > 0) {
+                process.send(response.join('\n'));
+            } else {
+                process.send('Error: Script execution timed out.');
+            }
             process.exit();
         }, EXECUTION_TIMEOUT - Date.now() + startTime);
     }
