@@ -24,21 +24,30 @@ process.on('message', data => {
             process.exit();
         }
 
+        function injectCbCounter(thisVal, args) {
+            return args.map(a => typeof a === 'function' ? function () {
+                --pendingCbs;
+                if (!pendingCbs) {
+                    setTimeout(sendAndExit);
+                }
+                return a.apply(thisVal, arguments);
+            } : a);
+        }
+
         const pRequest = new Proxy(request, {
             apply: (target, thisValue, args) => {
                 ++pendingCbs;
-                const newArgs = args.map(a => typeof a === 'function' ? function () {
-                    --pendingCbs;
-                    if (!pendingCbs) {
-                        setTimeout(sendAndExit);
-                    }
-                    return a.apply(thisValue, arguments);
-                } : a);
-                return target.apply(thisValue, newArgs);
+                return target.apply(thisValue, injectCbCounter(thisValue, args));
             },
-            /* get: (target, name) => {
-                return target[name];
-            } */
+            get: (target, name) => {
+                ++pendingCbs;
+                const methodProxy = new Proxy(target[name], {
+                    apply: (mTarget, thisValue, args) => {
+                        return mTarget.apply(thisValue, injectCbCounter(thisValue, args));
+                    }
+                });
+                return methodProxy;
+            }
         });
 
         try {
