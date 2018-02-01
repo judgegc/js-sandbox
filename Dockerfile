@@ -4,4 +4,4 @@ COPY package.json ./
 
 RUN npm install
 COPY . .
-CMD npm run start
+CMD ["node", "--max_old_space_size=250", "src/index.js"]
