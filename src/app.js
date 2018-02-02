@@ -111,6 +111,10 @@ class App {
             }
         });
 
+        client.on('error', (error) => {
+            console.log(error.message);
+        });
+
         await client.login(botToken);
 
         process.on('SIGINT', async () => {
