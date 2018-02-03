@@ -83,7 +83,7 @@ process.on('message', data => {
         setTimeout(() => {
             if (response.length > 0) {
                 process.send(response.join('\n'));
-            } else {
+            } else if (pendingCbs > 0) {
                 process.send('Error: Script execution timed out.');
             }
             process.exit();
