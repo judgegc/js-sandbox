@@ -1,10 +1,15 @@
 const childProcess = require('child_process');
-const JsSandbox = require('./../js-sandbox/js-sandbox');
+const Services = require('./../services');
 const Discord = require('discord.js');
 
+const Util = require('./../util');
+const ResponseSizeFilter = require('./../filters/response-size-filter');
+
 class JsSandboxCommand {
-    constructor(code, args, memoryLimit) {
-        this.sandbox = new JsSandbox(code, args, memoryLimit);
+    constructor(sourceCode, args, memoryLimit) {
+        this.sourceCode = sourceCode;
+        this._args = args;
+        this._sandboxManager = Services.resolve('sandboxmanager');
     }
 
     _readablePermissions(permissions) {
@@ -13,8 +18,10 @@ class JsSandboxCommand {
     }
 
     execute(client, msg) {
+        const external = {};
         const members = [];
-        if (msg.channel.type !== 'dm') {
+
+        if (Util.isGuildTextChannel(msg)) {
             msg.channel.guild.members.forEach(m => members.push({
                 id: m.user.id,
                 bot: m.user.bot,
@@ -41,14 +48,12 @@ class JsSandboxCommand {
                         position: r.position
                     }))
             }));
-            this.sandbox.pushData('members', members);
 
             const channels = [...msg.guild.channels]
                 .filter(c => ['text', 'voice'].indexOf(c[1].type) >= 0)
                 .map(c => ({ id: c[0], name: c[1].name, type: c[1].type, createdTimestamp: c[1].createdTimestamp }));
-            this.sandbox.pushData('channels', channels);
 
-            this.sandbox.pushData('roles', [...msg.channel.guild.roles.filter(r => r.name !== '@everyone')].map(r => ({
+            const roles = [...msg.channel.guild.roles.filter(r => r.name !== '@everyone')].map(r => ({
                 color: r[1].color,
                 createdTimestamp: r[1].createdTimestamp,
                 editable: r[1].editable,
@@ -61,11 +66,20 @@ class JsSandboxCommand {
                 permissions: r[1].permissions,
                 readablePermissions: this._readablePermissions(r[1].permissions),
                 position: r[1].position
-            })));
+            }));
+            Object.assign(external, { members, channels, roles });
         }
-        this.sandbox.pushData('channel', { id: msg.channel.id, name: msg.channel.name, nsfw: msg.channel.nsfw });
-        this.sandbox.pushData('author', { username: msg.author.username, id: msg.author.id, discriminator: msg.author.discriminator, bot: msg.author.bot });
-        return this.sandbox.execute();
+        const channel = { id: msg.channel.id, name: msg.channel.name, nsfw: msg.channel.nsfw };
+        const author = { username: msg.author.username, id: msg.author.id, discriminator: msg.author.discriminator, bot: msg.author.bot };
+
+        Object.assign(external, { channel, author });
+        return this._sandboxManager.send(this.sourceCode, external, this._args).then(result => {
+            const filtered = new ResponseSizeFilter(result).filter();
+            if (!filtered) {
+                return Promise.reject();
+            }
+            return Promise.resolve(filtered);
+        });
     }
 }
 

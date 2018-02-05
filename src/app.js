@@ -17,6 +17,8 @@ const EmojiUsageCollector = require('./emoji-stats/emoji-usage-collector');
 const MessageParser = require('./message-parser');
 const ExecutionPolicy = require('./execution-policy');
 
+const SandboxManager = require('./js-sandbox/sandbox-manager');
+
 const Services = require('./services');
 
 class App {
@@ -31,6 +33,9 @@ class App {
             console.warn('Storage not available. Exiting.');
             process.exit();
         }
+
+        const sandboxManager = new SandboxManager();
+        sandboxManager.start();
 
         const msgParser = new MessageParser();
 
@@ -67,6 +72,7 @@ class App {
         Services.register('client', client);
         Services.register('commandprocessor', cmdProc);
         Services.register('emojicollector', collector);
+        Services.register('sandboxmanager', sandboxManager);
 
         let updateTitleTimer = null;
 
