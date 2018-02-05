@@ -36,9 +36,11 @@ process.on('message', data => {
             return target.apply(thisValue, injectCbCounter(thisValue, args));
         },
         get: (target, name) => {
-            ++pendingCbs;
             const methodProxy = new Proxy(target[name], {
                 apply: (mTarget, thisValue, args) => {
+                    if (['get', 'head', 'post', 'put', 'patch', 'del', 'delete'].includes(name)) {
+                        ++pendingCbs;
+                    }
                     return mTarget.apply(thisValue, injectCbCounter(thisValue, args));
                 }
             });
