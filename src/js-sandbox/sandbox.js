@@ -40,9 +40,11 @@ process.on('message', data => {
                 return target.apply(thisValue, injectCbCounter(thisValue, args));
             },
             get: (target, name) => {
-                ++pendingCbs;
                 const methodProxy = new Proxy(target[name], {
                     apply: (mTarget, thisValue, args) => {
+                        if (['get', 'head', 'post', 'put', 'patch', 'del', 'delete'].includes(name)) {
+                            ++pendingCbs;
+                        }
                         return mTarget.apply(thisValue, injectCbCounter(thisValue, args));
                     }
                 });
@@ -81,10 +83,10 @@ process.on('message', data => {
         }
 
         setTimeout(() => {
-            if (response.length > 0) {
-                process.send(response.join('\n'));
-            } else if (pendingCbs > 0) {
+            if (pendingCbs > 0) {
                 process.send('Error: Script execution timed out.');
+            } else {
+                process.send(response.join('\n'));
             }
             process.exit();
         }, EXECUTION_TIMEOUT - Date.now() + startTime);
