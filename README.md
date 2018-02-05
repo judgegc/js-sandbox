@@ -111,4 +111,4 @@ Run mongodb container
 
 Run app
 
-`docker run --name jssanbox --link mongo:mongo -d --env_file envfile jssandbox`
+`docker run --name jssanbox --link mongo:mongo -d --env-file envfile jssandbox`
