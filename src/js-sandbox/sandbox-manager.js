@@ -4,7 +4,7 @@ const settings = require('./../../settings.json');
 class SandboxManager {
     constructor() {
         this.TOTAL_INSTANCES = settings['js-sandbox']['instances'];
-        this.MAX_TASKS = 1;
+        this.MAX_TASKS = Math.round(3 * this.TOTAL_INSTANCES / (settings['js-sandbox']['timeout'] / 1000));
         this._instances = [];
         this._tasks = [];
     }
