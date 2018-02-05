@@ -28,7 +28,7 @@ class App {
             const storage = await MongoClient.connect(mongoConnStr, { reconnectInterval: 60000 });
             Services.register('storage', storage);
         } catch (e) {
-            console.warn('Storage not available. Exiting.');
+            console.error('Storage not available. Exiting.');
             process.exit();
         }
 
@@ -115,7 +115,13 @@ class App {
             console.log(error.message);
         });
 
-        await client.login(botToken);
+        try {
+            await client.login(botToken);
+        } catch (e) {
+            console.error(e.message);
+            process.exit();
+        }
+
 
         process.on('SIGINT', async () => {
             await statsStorage.updateAllStats(collector.allStats);
