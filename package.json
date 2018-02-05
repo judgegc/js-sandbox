@@ -7,7 +7,7 @@
     "node": "8.9.x"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node --max_old_space_size=250 src/index.js",
     "test": "nyc --reporter=html --reporter=text mocha"
   },
   "author": "",
