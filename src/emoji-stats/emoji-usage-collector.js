@@ -39,7 +39,7 @@ class EmojiUsageCollector extends EventEmitter {
     }
 
     init() {
-        if (this.hasEnabled()) {
+        if (!this.isRun && this.hasEnabled()) {
             this._start();
         }
     }
