@@ -110,6 +110,11 @@ class EmojiUsageCollector extends EventEmitter {
             return;
         }
 
+        const serverStats = this.stats.get(reaction.message.guild.id);
+        if (reaction.message.createdTimestamp < serverStats.flush - serverStats.interval) {
+            return;
+        }
+
         if (reaction.emoji.id && reaction.message.guild.emojis.has(reaction.emoji.id)) {
             this._updateStats(reaction.message.guild.id, new Map([[reaction.emoji.name, 1]]));
         }
@@ -125,6 +130,11 @@ class EmojiUsageCollector extends EventEmitter {
         }
 
         if (!this._isEnabled(reaction.message)) {
+            return;
+        }
+
+        const serverStats = this.stats.get(reaction.message.guild.id);
+        if (reaction.message.createdTimestamp < serverStats.flush - serverStats.interval) {
             return;
         }
 
