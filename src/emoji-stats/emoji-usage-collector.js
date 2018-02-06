@@ -46,7 +46,7 @@ class EmojiUsageCollector extends EventEmitter {
 
     _start() {
         if (this.isRun) {
-            throw new Error();
+            throw new Error('Collector has already started');
         }
         console.log('Start');
         this.client.on('message', this.newMessage);
