@@ -72,7 +72,12 @@ class App {
 
         client.on('ready', async () => {
             console.log(`Logged in as ${client.user.tag}!`);
-            collector.init();
+            try {
+                collector.init();
+            } catch (e) {
+                conole.error(e.message);
+            }
+
             updateTitleTimer = setInterval(() => client.user.setActivity('Up: ' + prettyMs(process.uptime() * 1000)), Number.parseInt(settings['update-status-interval']));
         });
 
