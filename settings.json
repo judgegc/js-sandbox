@@ -11,7 +11,7 @@
             "javascript"
         ],
         "memory-limit": 16,
-        "custom-commands-per-user": 5
+        "custom-commands-per-user": 20
     },
     "emoji-collector": {
         "auto-save": 10000
