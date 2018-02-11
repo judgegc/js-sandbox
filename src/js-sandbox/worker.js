@@ -10,8 +10,7 @@ process.on('message', data => {
     let startTime;
     let result;
     const response = [];
-    let pendingCbs = 0;
-
+    let pendingCbs = [];
     function hasResult() {
         return typeof result === 'number' ? true : !!result;
     }
@@ -20,9 +19,9 @@ process.on('message', data => {
         process.send(response.join('\n'));
     }
 
-    function injectCbCounter(thisVal, args) {
+    function injectCbCounter(target, thisVal, args) {
         return args.map(a => typeof a === 'function' ? function () {
-            --pendingCbs;
+            pendingCbs.splice(pendingCbs.indexOf(target), 1);
             if (!pendingCbs) {
                 setTimeout(sendResponse);
             }
@@ -32,16 +31,16 @@ process.on('message', data => {
 
     const pRequest = new Proxy(request, {
         apply: (target, thisValue, args) => {
-            ++pendingCbs;
-            return target.apply(thisValue, injectCbCounter(thisValue, args));
+            pendingCbs.push(target);
+            return target.apply(thisValue, injectCbCounter(target, thisValue, args));
         },
         get: (target, name) => {
             const methodProxy = new Proxy(target[name], {
                 apply: (mTarget, thisValue, args) => {
                     if (['get', 'head', 'post', 'put', 'patch', 'del', 'delete'].includes(name)) {
-                        ++pendingCbs;
+                        pendingCbs.push(target);
                     }
-                    return mTarget.apply(thisValue, injectCbCounter(thisValue, args));
+                    return mTarget.apply(thisValue, injectCbCounter(target, thisValue, args));
                 }
             });
             return methodProxy;
@@ -69,7 +68,7 @@ process.on('message', data => {
         }
     }
 
-    if (!pendingCbs) {
+    if (!pendingCbs.length) {
         if (hasResult() && !response.length) {
             response.push(typeof result === 'object' ? JSON.stringify(result) : result);
         }
@@ -78,8 +77,9 @@ process.on('message', data => {
     }
 
     setTimeout(() => {
-        if (pendingCbs > 0) {
+        if (pendingCbs.length > 0) {
             process.send('Error: Script execution timed out.');
+            pendingCbs.forEach(cb => cb.abort());
             return;
         }
 
