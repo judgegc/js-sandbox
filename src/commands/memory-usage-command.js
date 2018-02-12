@@ -10,7 +10,10 @@ class MemoryUsageCommand {
         const memUsage = process.memoryUsage();
         const sandboxMemoryLimit = Number.parseInt(settings['js-sandbox']['memory-limit']);
         return new Promise((resolve, reject) => {
-            resolve(Object.keys(memUsage).map(p => p + ': ' + bytes(memUsage[p])).concat('sandboxLimit: ' + bytes(sandboxMemoryLimit * 1024 * 1024)).join('\n'));
+            resolve(Object.keys(memUsage).map(p => p + ': ' + bytes(memUsage[p]))
+                .concat('sandboxLimit: ' + bytes(sandboxMemoryLimit * 1024 * 1024))
+                .concat(`pool size: ${settings['js-sandbox']['instances']}`)
+                .join('\n'));
         });
     }
 }
