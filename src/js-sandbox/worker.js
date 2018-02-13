@@ -25,10 +25,6 @@ process.on('message', data => {
         return obj;
     }
 
-    function hasResult() {
-        return typeof result === 'number' ? true : !!result;
-    }
-
     function sendResponse() {
         const stateStr = JSON.stringify(commandState);
         if (stateStr.length > STATE_CAPACITY) {
@@ -90,7 +86,7 @@ process.on('message', data => {
     }
 
     if (!pendingCbs.length) {
-        if (hasResult() && !response.length) {
+        if (!(result === undefined || response.length)) {
             response.push(typeof result === 'object' ? JSON.stringify(result) : result);
         }
         sendResponse();
