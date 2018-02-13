@@ -5,18 +5,38 @@ const request = require('request');
 const settings = require('./../../settings.json');
 
 const EXECUTION_TIMEOUT = settings['js-sandbox']['timeout'];
+const STATE_CAPACITY = settings['js-sandbox']['state-capacity'];
 
 process.on('message', data => {
     let startTime;
     let result;
     const response = [];
+    const commandState = stateToObj(data.state);
     let pendingCbs = [];
+
+    function stateToObj(state) {
+        let obj = {};
+        if (typeof state === 'string') {
+            try {
+                obj = JSON.parse(state);
+            } catch (e) {
+            }
+        }
+        return obj;
+    }
+
     function hasResult() {
         return typeof result === 'number' ? true : !!result;
     }
 
     function sendResponse() {
-        process.send(response.join('\n'));
+        const stateStr = JSON.stringify(commandState);
+        if (stateStr.length > STATE_CAPACITY) {
+            process.send({ response: `Error: State size limit has been reached. (Capacity: ${STATE_CAPACITY}, actual: ${stateStr.length})` });
+        } else {
+            process.send({ state: stateStr, response: response.join('\n') });
+        }
+
     }
 
     function injectCbCounter(target, thisVal, args) {
@@ -51,6 +71,7 @@ process.on('message', data => {
         const vm = new VM({
             timeout: EXECUTION_TIMEOUT,
             sandbox: {
+                state: commandState,
                 request: pRequest,
                 console: { log: (m) => response.push(typeof m === 'object' ? JSON.stringify(m) : m) }
             }
@@ -78,7 +99,7 @@ process.on('message', data => {
 
     setTimeout(() => {
         if (pendingCbs.length > 0) {
-            process.send('Error: Script execution timed out.');
+            process.send({ response: 'Error: Script execution timed out.' });
             pendingCbs.forEach(cb => cb.abort());
             return;
         }
@@ -89,5 +110,5 @@ process.on('message', data => {
 });
 
 process.on('uncaughtException', (err) => {
-    process.send('Async exception: Something wrong happens');
+    process.send({ response: 'Async exception: Something wrong happens' });
 });

@@ -4,7 +4,7 @@ const Services = require('./services');
 
 const { JsSandboxCommand, GcCommand, MemoryUsageCommand, SayCommand, UnknownCommand, ReactCommand, ReactStrCommand, ServersCommand,
     SubscribeCommand, UnsubscribeCommand, ColorCommand, PinCommand, UnpinCommand, EmojiUsageStatsCommand,
-    SaveCustomCommand, RemoveCustomCommand, CommandListCommand } = require('./commands');
+    SaveCustomCommand, RemoveCustomCommand, CommandListCommand, CustomCommand } = require('./commands');
 
 class CommandProcessor {
     constructor() {
@@ -53,7 +53,7 @@ class CommandProcessor {
                     return new SaveCustomCommand([cmdNameFound[2], descFound, command.content]);
                 }
             }
-            return new JsSandboxCommand(command.content, [], settings['js-sandbox']['memory-limit']);
+            return new JsSandboxCommand(command.content, {}, []);
         } else if (command.type === 'command') {
             if (this._commands.hasOwnProperty(command.name)) {
                 return new this._commands[command.name](command.args);
@@ -63,7 +63,7 @@ class CommandProcessor {
             if (serverCommands) {
                 const cmd = serverCommands.get(command.name);
                 if (cmd) {
-                    return new JsSandboxCommand(cmd.sourceCode, command.args, settings['js-sandbox']['memory-limit']);
+                    return new CustomCommand(cmd, command.args);
                 }
             }
         }
@@ -84,9 +84,9 @@ class CommandProcessor {
                 throw Error(`Maximum number of commands per user has been reached. (${perUserLimit})`);
             }
 
-            serverCommands.set(name, { owner, desc, sourceCode });
+            serverCommands.set(name, { name, owner, desc, sourceCode, state: {} });
         } else {
-            this._customCommands.set(server, new Map([[name, { owner, desc, sourceCode }]]));
+            this._customCommands.set(server, new Map([[name, { name, owner, desc, sourceCode, state: {} }]]));
         }
     }
 

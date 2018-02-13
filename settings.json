@@ -13,7 +13,8 @@
         "timeout": 1000,
         "memory-limit": 16,
         "custom-commands-per-user": 5,
-        "instances": 2
+        "instances": 2,
+        "state-capacity": 100000
     },
     "emoji-collector": {
         "auto-save": 10000

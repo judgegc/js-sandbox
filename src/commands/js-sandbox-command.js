@@ -1,4 +1,3 @@
-const childProcess = require('child_process');
 const Services = require('./../services');
 const Discord = require('discord.js');
 
@@ -6,18 +5,24 @@ const Util = require('./../util');
 const ResponseSizeFilter = require('./../filters/response-size-filter');
 
 class JsSandboxCommand {
-    constructor(sourceCode, args, memoryLimit) {
+    constructor(sourceCode, state, args) {
         this.sourceCode = sourceCode;
+        this._state = state;
         this._args = args;
         this._sandboxManager = Services.resolve('sandboxmanager');
     }
 
-    _readablePermissions(permissions) {
-        const pObj = new Discord.Permissions(permissions).serialize();
-        return Object.keys(pObj).filter(pk => pObj[pk]);
+    execute(client, msg) {
+        return this._sandboxManager.send(this.sourceCode, JsSandboxCommand.buildExternal(client, msg), this._state, this._args).then(result => {
+            const filtered = new ResponseSizeFilter(result.response).filter();
+            if (!filtered) {
+                return Promise.reject();
+            }
+            return Promise.resolve(filtered);
+        });
     }
 
-    execute(client, msg) {
+    static buildExternal(client, msg) {
         const external = {};
         const members = [];
 
@@ -73,13 +78,12 @@ class JsSandboxCommand {
         const author = { username: msg.author.username, id: msg.author.id, discriminator: msg.author.discriminator, bot: msg.author.bot };
 
         Object.assign(external, { channel, author });
-        return this._sandboxManager.send(this.sourceCode, external, this._args).then(result => {
-            const filtered = new ResponseSizeFilter(result).filter();
-            if (!filtered) {
-                return Promise.reject();
-            }
-            return Promise.resolve(filtered);
-        });
+        return external;
+    }
+
+    static _readablePermissions(permissions) {
+        const pObj = new Discord.Permissions(permissions).serialize();
+        return Object.keys(pObj).filter(pk => pObj[pk]);
     }
 }
 

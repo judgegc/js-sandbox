@@ -10,13 +10,13 @@ class Instance {
         this._setupListeners();
     }
 
-    run(sourceCode, external, args) {
+    run(sourceCode, external, state, args) {
         if (!this._isFree) {
             throw Error('Worker is busy');
         }
 
         this._isFree = false;
-        this._worker.send({ sourceCode, external, args });
+        this._worker.send({ sourceCode, external, state, args });
         return new Promise((resolve, reject) => {
             this._resolve = resolve;
         });

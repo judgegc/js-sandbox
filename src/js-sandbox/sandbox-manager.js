@@ -20,17 +20,17 @@ class SandboxManager {
      * @param {string} sourceCode 
      * @return {number} response id
      */
-    send(sourceCode, external, args) {
-        const instance = this._getFreeInstance();
-        if (instance) {
-            return instance.run(sourceCode, external, args)
+    send(sourceCode, external, state, args) {
+        const availableInstance = this._getFreeInstance();
+        if (availableInstance) {
+            return availableInstance.run(sourceCode, external, state, args)
                 .then(x => {
-                    setTimeout(() => this._onFree(instance));
+                    setTimeout(() => this._onFree(availableInstance));
                     return x;
                 });
         } else if (this._tasks.length < this.MAX_TASKS) {
             return new Promise((resolve, reject) => {
-                this._tasks.push({ sourceCode, external, args, resolve });
+                this._tasks.push({ sourceCode, external, state, args, resolve });
             });
         }
         return Promise.reject();
@@ -41,7 +41,7 @@ class SandboxManager {
             return;
         }
         const task = this._tasks.shift();
-        instance.run(task.sourceCode, task.external, task.args)
+        instance.run(task.sourceCode, task.external, task.state, task.args)
             .then(result => task.resolve(result));
     }
 
