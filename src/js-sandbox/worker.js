@@ -42,7 +42,7 @@ process.on('message', data => {
     function injectCbCounter(target, thisVal, args) {
         return args.map(a => typeof a === 'function' ? function () {
             pendingCbs.splice(pendingCbs.indexOf(target), 1);
-            if (!pendingCbs) {
+            if (!pendingCbs.length) {
                 setTimeout(sendResponse);
             }
             return a.apply(thisVal, arguments);
