@@ -10,7 +10,7 @@
             "js",
             "javascript"
         ],
-        "timeout": 1000,
+        "timeout": 2000,
         "memory-limit": 16,
         "custom-commands-per-user": 5,
         "instances": 2,
