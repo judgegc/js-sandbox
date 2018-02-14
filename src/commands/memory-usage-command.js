@@ -20,7 +20,7 @@ class MemoryUsageCommand {
                             if (error) {
                                 resolve('unknown');
                             }
-                            resolve(stdout);
+                            resolve(stdout.slice(0, -1));
                         });
                         break;
                     default:
@@ -33,7 +33,7 @@ class MemoryUsageCommand {
             resolve(Object.keys(memUsage).map(p => `${p}: ${bytes(memUsage[p])}`)
                 .concat(`sandboxLimit: ${bytes(settings['js-sandbox']['memory-limit'] * 1024 * 1024)}`)
                 .concat(`totalThreads: ${totalThreads}`)
-                .concat(`pool size: ${settings['js-sandbox']['instances']}`)              
+                .concat(`pool size: ${settings['js-sandbox']['instances']}`)
                 .join('\n'));
         });
     }
