@@ -1,6 +1,7 @@
 const { VM, VMScript } = require('vm2');
 const Stat = require('simple-statistics');
 const request = require('request');
+const prettyMs = require('pretty-ms');
 
 const settings = require('./../../settings.json');
 
@@ -76,6 +77,7 @@ process.on('message', data => {
         vm.freeze(Stat, 'Stat');
         vm.freeze(data.external, 'external');
         vm.freeze(data.args, 'arguments');
+        vm.freeze(prettyMs, 'Pms');
         startTime = Date.now();
         result = vm.run(data.sourceCode);
     }
