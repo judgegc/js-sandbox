@@ -17,6 +17,8 @@ const EmojiUsageCollector = require('./emoji-stats/emoji-usage-collector');
 const MessageParser = require('./message-parser');
 const ExecutionPolicy = require('./execution-policy');
 
+const SandboxManager = require('./js-sandbox/sandbox-manager');
+
 const Services = require('./services');
 
 class App {
@@ -31,6 +33,9 @@ class App {
             console.error('Storage not available. Exiting.');
             process.exit();
         }
+
+        const sandboxManager = new SandboxManager();
+        sandboxManager.start();
 
         const msgParser = new MessageParser();
 
@@ -67,6 +72,7 @@ class App {
         Services.register('client', client);
         Services.register('commandprocessor', cmdProc);
         Services.register('emojicollector', collector);
+        Services.register('sandboxmanager', sandboxManager);
 
         let updateTitleTimer = null;
 
@@ -104,11 +110,11 @@ class App {
 
             try {
                 let response = await command.execute(client, msg);
-                if (!Util.isDmMsg(msg)) {
+                if (typeof response === 'string') {
                     response = new CustomEmojiFilter(response).filter(client);
                     response = new ChannelMentionResolver(response).resolve(msg);
+                    await msg.channel.send(response);
                 }
-                await msg.channel.send(response);
             } catch (e) {
                 if (e) {
                     await msg.channel.send(e.message);

@@ -11,6 +11,7 @@
 **Built-in modules**
 
 * [Simple-statistics](https://github.com/simple-statistics/simple-statistics)
+* [Pretty-ms](https://github.com/sindresorhus/pretty-ms)
 
 ## Commands
 

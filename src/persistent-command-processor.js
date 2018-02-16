@@ -14,21 +14,25 @@ class PersistentCommandProcessor extends CommandProcessor {
                 const [serverId, name] = doc._id.split(this.INDEX_DELIM);
                 const server = this._customCommands.get(serverId);
                 if (server) {
-                    server.set(name, { owner: doc.owner, desc: doc.desc, sourceCode: doc.sourceCode });
+                    server.set(name, { name, owner: doc.owner, desc: doc.desc, sourceCode: doc.sourceCode, state: doc.state });
                 } else {
-                    this._customCommands.set(serverId, new Map([[name, { owner: doc.owner, desc: doc.desc, sourceCode: doc.sourceCode }]]));
+                    this._customCommands.set(serverId, new Map([[name, { name, owner: doc.owner, desc: doc.desc, sourceCode: doc.sourceCode, state: doc.state }]]));
                 }
             });
     }
 
     async createCommand(server, name, desc, owner, sourceCode) {
         super.createCommand(server, name, desc, owner, sourceCode);
-        await this.storage.updateOne({ _id: this._hashIndex(server, name) }, { $set: { owner, desc, sourceCode } }, { upsert: true });
+        await this.storage.updateOne({ _id: this._hashIndex(server, name) }, { $set: { owner, desc, sourceCode, state: '' } }, { upsert: true });
     }
 
     async removeCommand(serverId, name) {
         super.removeCommand(serverId, name);
         await this.storage.deleteOne({ _id: this._hashIndex(serverId, name) });
+    }
+
+    async saveState(serverId, command) {
+        await this.storage.updateOne({ _id: this._hashIndex(serverId, command.name) }, { $set: { state: command.state } });
     }
 
     getCommandOwner(serverId, name) {

@@ -10,10 +10,6 @@ class ReactCommand {
     }
 
     execute(client, msg) {
-        if (Util.isDmMsg(msg)) {
-            return Promise.reject();
-        }
-
         if (this.args.length < 2) {
             return Promise.reject();
         }

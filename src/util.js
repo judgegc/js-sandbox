@@ -1,8 +1,6 @@
-class Util {
-    static isDmMsg(msg) {
-        return msg.channel.type === 'dm';
-    }
+const crypto = require('crypto');
 
+class Util {
     static isGuildTextChannel(msg) {
         return msg.channel.type === 'text';
     }
@@ -34,6 +32,10 @@ class Util {
     static strToBool(str) {
         const loVal = str.toLowerCase();
         return loVal === 'true';
+    }
+
+    static md5(msg) {
+        return crypto.createHash('md5').update(msg).digest('hex');
     }
 }
 
