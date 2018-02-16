@@ -105,11 +105,11 @@ class App {
 
             try {
                 let response = await command.execute(client, msg);
-                if (!Util.isDmMsg(msg)) {
+                if (typeof response === 'string') {
                     response = new CustomEmojiFilter(response).filter(client);
                     response = new ChannelMentionResolver(response).resolve(msg);
+                    await msg.channel.send(response);
                 }
-                await msg.channel.send(response);
             } catch (e) {
                 if (e) {
                     await msg.channel.send(e.message);
