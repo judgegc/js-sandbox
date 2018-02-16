@@ -84,9 +84,9 @@ class CommandProcessor {
                 throw Error(`Maximum number of commands per user has been reached. (${perUserLimit})`);
             }
 
-            serverCommands.set(name, { name, owner, desc, sourceCode, state: {} });
+            serverCommands.set(name, { name, owner, desc, sourceCode, state: '' });
         } else {
-            this._customCommands.set(server, new Map([[name, { name, owner, desc, sourceCode, state: {} }]]));
+            this._customCommands.set(server, new Map([[name, { name, owner, desc, sourceCode, state: '' }]]));
         }
     }
 

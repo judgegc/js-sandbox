@@ -23,7 +23,7 @@ class PersistentCommandProcessor extends CommandProcessor {
 
     async createCommand(server, name, desc, owner, sourceCode) {
         super.createCommand(server, name, desc, owner, sourceCode);
-        await this.storage.updateOne({ _id: this._hashIndex(server, name) }, { $set: { owner, desc, sourceCode } }, { upsert: true });
+        await this.storage.updateOne({ _id: this._hashIndex(server, name) }, { $set: { owner, desc, sourceCode, state: '' } }, { upsert: true });
     }
 
     async removeCommand(serverId, name) {
