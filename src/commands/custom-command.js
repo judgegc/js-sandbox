@@ -20,7 +20,6 @@ class CustomCommand {
 
         if (stateHash !== Util.md5(result.state)) {
             this._commandProc.saveState(msg.guild.id, this._command);
-            console.log('Saved');
         }
 
         const filtered = new ResponseSizeFilter(result.response).filter();
