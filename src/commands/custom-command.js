@@ -14,19 +14,20 @@ class CustomCommand {
 
     async execute(client, msg) {
         const stateHash = Util.md5(this._command.state);
-        return this._sandboxManager.send(this._command.sourceCode, JsSandboxCommand.buildExternal(client, msg), this._command.state, this._args)
-            .then(result => {
-                this._command.state = result.state;
-                if (stateHash !== Util.md5(result.state)) {
-                    this._commandProc.saveState(msg.guild.id, this._command);
-                }
+        const result = await this._sandboxManager.send(this._command.sourceCode, JsSandboxCommand.buildExternal(client, msg), this._command.state, this._args);
 
-                const filtered = new ResponseSizeFilter(result.response).filter();
-                if (!filtered) {
-                    return Promise.reject();
-                }
-                return Promise.resolve(filtered);
-            });
+        this._command.state = result.state;
+
+        if (stateHash !== Util.md5(result.state)) {
+            this._commandProc.saveState(msg.guild.id, this._command);
+            console.log('Saved');
+        }
+
+        const filtered = new ResponseSizeFilter(result.response).filter();
+        if (!filtered) {
+            throw undefined;
+        }
+        return filtered;
     }
 }
 
