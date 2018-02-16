@@ -1,10 +1,6 @@
 const crypto = require('crypto');
 
 class Util {
-    static isDmMsg(msg) {
-        return msg.channel.type === 'dm';
-    }
-
     static isGuildTextChannel(msg) {
         return msg.channel.type === 'text';
     }

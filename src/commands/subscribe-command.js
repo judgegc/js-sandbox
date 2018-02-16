@@ -29,10 +29,6 @@ class SubscribeCommand {
     }
 
     execute(client, msg) {
-        if (Util.isDmMsg(msg)) {
-            return Promise.reject();
-        }
-
         if (this.args.length < 1) {
             return Promise.reject();
         }

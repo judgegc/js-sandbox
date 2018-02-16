@@ -19,10 +19,6 @@ class ExecutionPolicy {
         return server + command;
     }
     check(msg, command) {
-        if (!Util.isGuildTextChannel(msg)) {
-            return false;
-        }
-
         if (command.type !== 'command') {
             return true;
         }
