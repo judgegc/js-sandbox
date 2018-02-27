@@ -48,7 +48,7 @@ class EmojiUsageCollector extends EventEmitter {
         if (this.isRun) {
             throw new Error('Collector has already started');
         }
-        console.log('Start');
+        console.log('Start emoji collector');
         this.client.on('message', this.newMessage);
         this.client.on('messageUpdate', this.updateMessage);
         this.client.on('messageDelete', this.deleteMessage);
@@ -61,7 +61,7 @@ class EmojiUsageCollector extends EventEmitter {
     }
 
     _stop() {
-        console.log('Stop');
+        console.log('Stop emoji collector');
         this.client.removeListener('message', this.newMessage);
         this.client.removeListener('messageUpdate', this.updateMessage);
         this.client.removeListener('messageDelete', this.deleteMessage);
