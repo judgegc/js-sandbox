@@ -317,7 +317,7 @@ class EmojiUsageCollector extends EventEmitter {
         const intervalStr = prettyMs(serverStats.interval);
         const statStr = `Interval: ${intervalStr}\n${emojiStatsStr}`;
 
-        const statResponse = new CustomEmojiFilter(statStr).filter(this.client);
+        const statResponse = new CustomEmojiFilter(statStr).filter(this.client.guilds, serverId);
 
         const outChannel = this.client.channels.get(serverStats.output);
         if (outChannel) {

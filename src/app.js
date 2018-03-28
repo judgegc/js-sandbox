@@ -111,7 +111,7 @@ class App {
             try {
                 let response = await command.execute(client, msg);
                 if (typeof response === 'string') {
-                    response = new CustomEmojiFilter(response).filter(client);
+                    response = new CustomEmojiFilter(response).filter(client.guilds, msg.guild.id);
                     response = new ChannelMentionResolver(response).resolve(msg);
                     await msg.channel.send(response);
                 }
