@@ -37,7 +37,7 @@ class CommandProcessor {
     }
 
     process(command, serverId) {
-        if (command.type === 'source_code' && settings['js-sandbox']['prefix'].includes(command.language)) {
+        if (command.type === 'source_code' && settings['js-sandbox']['prefix'].includes(command.language.toLowerCase())) {
             if (this.isCustomCmdSOurceCode(command.content)) {
                 const lines = command.content.split(this.rNewLine, 3);
                 if (lines.length >= 2) {
