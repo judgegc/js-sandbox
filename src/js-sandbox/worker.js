@@ -3,6 +3,7 @@ const Stat = require('simple-statistics');
 const request = require('request');
 const prettyMs = require('pretty-ms');
 const crypto = require('crypto');
+const url = require('url');
 
 const settings = require('./../../settings.json');
 
@@ -80,6 +81,7 @@ process.on('message', data => {
         vm.freeze(data.args, 'arguments');
         vm.freeze(prettyMs, 'Pms');
         vm.freeze(crypto, 'crypto');
+        vm.freeze(url, 'url');
         startTime = Date.now();
         result = vm.run(data.sourceCode);
     }
