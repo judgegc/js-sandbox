@@ -9,7 +9,7 @@ class MessageParser {
     }
     parse(msg) {
         let found = null;
-        if (found = msg.match(/```([a-z]*)\n([\s\S]*?)\n```/)) {
+        if (found = msg.match(/```([a-zA-Z]*)\n([\s\S]*?)\n```/)) {
             return { type: 'source_code', language: found[1], content: found[2] };
         } else if (found = msg.match(this.cmdPattern)) {
             return { type: 'command', name: found[1], args: new ArgsParser().parse(found[2]) };

@@ -16,4 +16,5 @@ module.exports = {
     SaveCustomCommand: require('./save-custom-comand'),
     RemoveCustomCommand: require('./remove-custom-command'),
     CommandListCommand: require('./command-list-command'),
+    CustomCommand: require('./custom-command')
 };

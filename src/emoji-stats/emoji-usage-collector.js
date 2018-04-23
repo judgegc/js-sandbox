@@ -48,7 +48,7 @@ class EmojiUsageCollector extends EventEmitter {
         if (this.isRun) {
             throw new Error('Collector has already started');
         }
-        console.log('Start');
+        console.log('Start emoji collector');
         this.client.on('message', this.newMessage);
         this.client.on('messageUpdate', this.updateMessage);
         this.client.on('messageDelete', this.deleteMessage);
@@ -61,7 +61,7 @@ class EmojiUsageCollector extends EventEmitter {
     }
 
     _stop() {
-        console.log('Stop');
+        console.log('Stop emoji collector');
         this.client.removeListener('message', this.newMessage);
         this.client.removeListener('messageUpdate', this.updateMessage);
         this.client.removeListener('messageDelete', this.deleteMessage);
@@ -110,6 +110,11 @@ class EmojiUsageCollector extends EventEmitter {
             return;
         }
 
+        const serverStats = this.stats.get(reaction.message.guild.id);
+        if (reaction.message.createdTimestamp < serverStats.flush - serverStats.interval) {
+            return;
+        }
+
         if (reaction.emoji.id && reaction.message.guild.emojis.has(reaction.emoji.id)) {
             this._updateStats(reaction.message.guild.id, new Map([[reaction.emoji.name, 1]]));
         }
@@ -125,6 +130,11 @@ class EmojiUsageCollector extends EventEmitter {
         }
 
         if (!this._isEnabled(reaction.message)) {
+            return;
+        }
+
+        const serverStats = this.stats.get(reaction.message.guild.id);
+        if (reaction.message.createdTimestamp < serverStats.flush - serverStats.interval) {
             return;
         }
 
@@ -307,7 +317,7 @@ class EmojiUsageCollector extends EventEmitter {
         const intervalStr = prettyMs(serverStats.interval);
         const statStr = `Interval: ${intervalStr}\n${emojiStatsStr}`;
 
-        const statResponse = new CustomEmojiFilter(statStr).filter(this.client);
+        const statResponse = new CustomEmojiFilter(statStr).filter(this.client.guilds, serverId);
 
         const outChannel = this.client.channels.get(serverStats.output);
         if (outChannel) {

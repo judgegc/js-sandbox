@@ -6,11 +6,7 @@ class UnpinCommand {
     }
 
     async execute(client, msg) {
-        if (Util.isDmMsg(msg)) {
-            return Promise.reject();
-        }
-
-        if (this.args.length < 1) {
+        if (this.args.length < 1 || !Util.isInteger(this.args[0])) {
             return Promise.reject();
         }
 

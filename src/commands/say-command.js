@@ -14,7 +14,7 @@ class SayCommand {
 
         const channel = this.args.length === 2 ? client.channels.get(this.args[0]) : msg.channel;
         if (channel) {
-            channel.send(new CustomEmojiFilter(this.args[this.args.length - 1]).filter(client, msg)).catch(e => e);
+            channel.send(new CustomEmojiFilter(this.args[this.args.length - 1]).filter(client.guilds, msg.guild.id)).catch(e => e);
         }
         return Promise.reject();
     }

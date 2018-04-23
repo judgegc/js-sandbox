@@ -10,8 +10,11 @@
             "js",
             "javascript"
         ],
+        "timeout": 2000,
         "memory-limit": 16,
-        "custom-commands-per-user": 5
+        "custom-commands-per-user": 20,
+        "instances": 2,
+        "state-capacity": 100000
     },
     "emoji-collector": {
         "auto-save": 10000
