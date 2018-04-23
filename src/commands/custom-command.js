@@ -16,9 +16,8 @@ class CustomCommand {
         const stateHash = Util.md5(this._command.state);
         const result = await this._sandboxManager.send(this._command.sourceCode, JsSandboxCommand.buildExternal(client, msg), this._command.state, this._args);
 
-        this._command.state = result.state;
-
         if (stateHash !== Util.md5(result.state)) {
+            this._command.state = result.state;
             this._commandProc.saveState(msg.guild.id, this._command);
         }
 
