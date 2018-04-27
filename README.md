@@ -3,8 +3,9 @@
 [Commands](#commands)
 
 [Custom commands](#custom-commands)
-
-[Http](#http)
+* [arguments](#arguments)
+* [Http](#http)
+* [State](#state)
 
 [Installation](#how-to-install)
 
@@ -62,7 +63,7 @@ And `'desc=this command output 42'` is additional information shows in `!cmdlist
 Use `!rmcmd nameCmd` for remove custom command.
 
 ## arguments
-Arguments is a built in variable available only in custom commands. Contains user input data, passed with command.
+`arguments` is a built in variable available only in custom commands. Contains user input data, passed with command. The type of `arguments` is an [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array).
 ```js
 'custom command'
 'cmd=args'
