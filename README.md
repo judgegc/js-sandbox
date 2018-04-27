@@ -1,6 +1,6 @@
 # **js-sandbox**
 
-[Commands](#comands)
+[Commands](#commands)
 
 [Custom commands](#custom-commands)
 
@@ -12,6 +12,7 @@
 
 * [Simple-statistics](https://github.com/simple-statistics/simple-statistics)
 * [Pretty-ms](https://github.com/sindresorhus/pretty-ms)
+* [request](https://github.com/expressjs/express)
 
 ## Commands
 
@@ -40,12 +41,12 @@ ___
 
 `reaction` is global or custom emoji. (Examples: :regional_indicator_a: )
 
-`text` should consists only english letters
+`text` should contains only english letters
 
 
 # Custom commands
+Custom commands are a just normal code, which you can call using alias.
 
-You can add custom commands from chat in discord. Example
 
 ```javascript
 'custom command'
@@ -53,32 +54,56 @@ You can add custom commands from chat in discord. Example
 'desc=this command output 42'
 console.log(42);
 ```
+The main difference is special comments at the beginning.
+`'custom command'` tell that code would be regarded as custom command. 
+At the next line, `'cmd=nameCmd'` set the alias name.
+And `'desc=this command output 42'` is additional information shows in `!cmdlist`. `desc` is optionsl.
 
-Now you can write `!nameCmd` to chat discord. Bot answer will be `42`.
+Use `!rmcmd nameCmd` for remove custom command.
 
-First line must be `'custom command'`. It indicate for bot.
-
-Second line for naming of command `'cmd=COMMAND_NAME'`. Max length name - 16 chars. Only letters.
-
-Third line not required. Use it for description of your command.
-
-Rewrite custom command unavailable. Use `!rmcmd nameCmd` for remove custom command.
 
 ## Http
 
-In your code available function `request`. Example:
+In your code available function [request](https://github.com/expressjs/express). Example:
 
 ```js
+'custom command'
+'cmd=curl'
 request('http://api.ipify.org/?format=json', function (error, response, body) {
     if (!error && response.statusCode == 200) {
         console.log(body);
     }
 })
 ```
-Http available for custom commands too.
+```
+{"ip":"1.2.3.4"}
+```
 
+## State
 
-# How install
+Also you can store some data between calls. 
+
+For example. Next custom command prints, how many times it was called.
+```js
+'custom command'
+'cmd=counter'
+if(state.counter === undefined)
+    state.counter = 1; //initialize state variable
+else
+    state.counter++; //increment state variable
+console.log(`Counter: ${state.counter}`)
+```
+
+```
+!counter
+Counter: 1
+!counter
+Counter: 2
+!counter
+Counter: 3
+```
+
+# How to install
 
 ## **Own server**
 
@@ -86,7 +111,7 @@ Clone repository
 
 `git clone https://github.com/judgegc/js-sandbox.git`
 
-Join to dir
+Go to `js-sandbox`
 
 `cd js-sandbox`
 
