@@ -61,7 +61,21 @@ And `'desc=this command output 42'` is additional information shows in `!cmdlist
 
 Use `!rmcmd nameCmd` for remove custom command.
 
-
+## arguments
+Arguments is a built in variable available only in custom commands. Contains user input data, passed with command.
+```js
+'custom command'
+'cmd=args'
+console.log(arguments)
+```
+```
+!args
+[]
+!args 1 2 3 4
+["1","2","3","4"]
+!args 1 "argument with space" 2
+["1","argument with space","2"]
+```
 ## Http
 
 In your code available function [request](https://github.com/expressjs/express). Example:
