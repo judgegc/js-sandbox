@@ -6,7 +6,7 @@
 
 [Http](#http)
 
-[Installation](#how-install)
+[Installation](#how-to-install)
 
 **Built-in modules**
 
