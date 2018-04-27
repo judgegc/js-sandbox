@@ -57,7 +57,7 @@ console.log(42);
 The main difference is special comments at the beginning.
 `'custom command'` tell that code would be regarded as custom command. 
 At the next line, `'cmd=nameCmd'` set the alias name.
-And `'desc=this command output 42'` is additional information shows in `!cmdlist`. `desc` is optionsl.
+And `'desc=this command output 42'` is additional information shows in `!cmdlist`. `desc` is optional.
 
 Use `!rmcmd nameCmd` for remove custom command.
 
