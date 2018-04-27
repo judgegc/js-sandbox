@@ -68,7 +68,7 @@ In your code available function [request](https://github.com/expressjs/express).
 
 ```js
 'custom command'
-'cmd=curl'
+'cmd=serverip'
 request('http://api.ipify.org/?format=json', function (error, response, body) {
     if (!error && response.statusCode == 200) {
         console.log(body);
@@ -76,6 +76,7 @@ request('http://api.ipify.org/?format=json', function (error, response, body) {
 })
 ```
 ```
+!serverip
 {"ip":"1.2.3.4"}
 ```
 
