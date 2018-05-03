@@ -2,6 +2,7 @@ const { VM, VMScript } = require('vm2');
 const Stat = require('simple-statistics');
 const request = require('request');
 const prettyMs = require('pretty-ms');
+const moment = require('moment');
 const crypto = require('crypto');
 const url = require('url');
 
@@ -80,6 +81,7 @@ process.on('message', data => {
         vm.freeze(data.external, 'external');
         vm.freeze(data.args, 'arguments');
         vm.freeze(prettyMs, 'Pms');
+        vm.freeze(moment, 'moment');
         vm.freeze(crypto, 'crypto');
         vm.freeze(url, 'url');
         startTime = Date.now();
