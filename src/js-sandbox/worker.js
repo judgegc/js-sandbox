@@ -20,7 +20,6 @@ process.on('message', data => {
     let timeoutTimer;
 
     function sendResponse() {
-        console.log('sendResponse');
         clearTimeout(timeoutTimer);
         const stateStr = JSON.stringify(commandState);
         
