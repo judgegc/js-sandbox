@@ -29,6 +29,7 @@ class CommandProcessor {
         this.rCustomName = /^(['"])cmd=(\w+)\1;?$/;
         this.rCustomDesc = /^(['"])desc=(.+)\1;?$/;
         this.rNewLine = /\r\n|\r|\n/;
+        this.emptyState = JSON.stringify({});
     }
 
     isCustomCmdSOurceCode(content) {
@@ -53,7 +54,7 @@ class CommandProcessor {
                     return new SaveCustomCommand([cmdNameFound[2], descFound, command.content]);
                 }
             }
-            return new JsSandboxCommand(command.content, {}, []);
+            return new JsSandboxCommand(command.content, this.emptyState, []);
         } else if (command.type === 'command') {
             if (this._commands.hasOwnProperty(command.name)) {
                 return new this._commands[command.name](command.args);
@@ -74,14 +75,15 @@ class CommandProcessor {
         const client = Services.resolve('client');
         const perUserLimit = settings['js-sandbox']['custom-commands-per-user'];
         const serverCommands = this._customCommands.get(server);
+
         if (serverCommands) {
             if ([...serverCommands].filter(c => c[1].owner === owner).length >= perUserLimit) {
                 throw Error(`Maximum number of commands per user has been reached. (${perUserLimit})`);
             }
 
-            serverCommands.set(name, { name, owner, desc, sourceCode, state: '' });
+            serverCommands.set(name, { name, owner, desc, sourceCode, state: this.emptyState });
         } else {
-            this._customCommands.set(server, new Map([[name, { name, owner, desc, sourceCode, state: '' }]]));
+            this._customCommands.set(server, new Map([[name, { name, owner, desc, sourceCode, state: this.emptyState }]]));
         }
     }
 

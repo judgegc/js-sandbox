@@ -15,22 +15,12 @@ process.on('message', data => {
     let startTime;
     let result;
     const response = [];
-    const commandState = stateToObj(data.state);
+    const commandState = JSON.parse(data.state);
     let pendingCbs = [];
-
-    function stateToObj(state) {
-        let obj = {};
-        if (typeof state === 'string') {
-            try {
-                obj = JSON.parse(state);
-            } catch (e) {
-            }
-        }
-        return obj;
-    }
 
     function sendResponse() {
         const stateStr = JSON.stringify(commandState);
+        
         if (stateStr.length > STATE_CAPACITY) {
             process.send({ response: `Error: State size limit has been reached. (Capacity: ${STATE_CAPACITY}, actual: ${stateStr.length})` });
         } else {
