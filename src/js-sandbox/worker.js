@@ -17,8 +17,11 @@ process.on('message', data => {
     const response = [];
     const commandState = JSON.parse(data.state);
     let pendingCbs = [];
+    let timeoutTimer;
 
     function sendResponse() {
+        console.log('sendResponse');
+        clearTimeout(timeoutTimer);
         const stateStr = JSON.stringify(commandState);
         
         if (stateStr.length > STATE_CAPACITY) {
@@ -35,7 +38,13 @@ process.on('message', data => {
             if (!pendingCbs.length) {
                 setTimeout(sendResponse);
             }
-            return a.apply(thisVal, arguments);
+            try{
+                return a.apply(thisVal, arguments);
+            }
+            catch(e) {
+                response.push(e.toString());
+            }
+
         } : a);
     }
 
@@ -91,7 +100,7 @@ process.on('message', data => {
         return;
     }
 
-    setTimeout(() => {
+    timeoutTimer = setTimeout(() => {
         if (pendingCbs.length > 0) {
             process.send({ response: 'Error: Script execution timed out.' });
             pendingCbs.forEach(cb => cb.abort());
