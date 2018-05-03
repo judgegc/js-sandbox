@@ -75,11 +75,6 @@ class CommandProcessor {
         const perUserLimit = settings['js-sandbox']['custom-commands-per-user'];
         const serverCommands = this._customCommands.get(server);
         if (serverCommands) {
-            const command = serverCommands.get(name);
-            if (command) {
-                const ownerObj = client.users.get(command.owner);
-                throw new Error(`Command '${name}' already owned by ${ownerObj ? ownerObj.username : owner}`);
-            }
             if ([...serverCommands].filter(c => c[1].owner === owner).length >= perUserLimit) {
                 throw Error(`Maximum number of commands per user has been reached. (${perUserLimit})`);
             }
