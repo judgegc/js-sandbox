@@ -16,6 +16,11 @@
         "instances": 2,
         "state-capacity": 100000
     },
+    "init-allow-commands": [
+        "cmdlist",
+        "rmcmd",
+        "mycolor"
+    ],
     "emoji-collector": {
         "auto-save": 10000
     }

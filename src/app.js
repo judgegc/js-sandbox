@@ -40,6 +40,12 @@ class App {
         const msgParser = new MessageParser();
 
         const cmdProc = new PersistentCommandProcessor(Services.resolve('storage'));
+
+        if (!settings['init-allow-commands'].every(x => cmdProc.commands.hasOwnProperty(x))) {
+            console.error('\'init-allow-commands\' contain unknown command.');
+            process.exit();
+        }
+
         await cmdProc.loadCustomCommands();
 
         const client = new Discord.Client({ autoReconnect: true });
@@ -73,6 +79,7 @@ class App {
         Services.register('commandprocessor', cmdProc);
         Services.register('emojicollector', collector);
         Services.register('sandboxmanager', sandboxManager);
+        Services.register('executionpolicy', guard);
 
         let updateTitleTimer = null;
 
@@ -120,6 +127,11 @@ class App {
                     await msg.channel.send(e.message);
                 }
             }
+        });
+
+        client.on('guildCreate', guild => {
+            const policy = Services.resolve('executionpolicy');
+            settings['init-allow-commands'].forEach(x => policy.change(guild.id, x, { add: { users: [], groups: [guild.id] }, remove: { users: [], groups: [] } }));
         });
 
         client.on('error', (error) => {
