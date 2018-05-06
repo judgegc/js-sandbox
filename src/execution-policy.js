@@ -1,21 +1,11 @@
 const settings = require('../settings.json');
-const Services = require('./services');
 const Util = require('./util');
 
 class ExecutionPolicy {
-    constructor(commands) {
-        this.collection = 'execution_policy';
-        this.comamnds = commands;
+    constructor() {
         this.superAdmin = settings['super-admin'];
         this.permissions = new Map();
         this.INDEX_DELIM = '_';
-    }
-
-    async loadPermissions() {
-        this.permissions = new Map((await Services.resolve('storage').collection(this.collection)
-            .find()
-            .toArray())
-            .map(p => [p._id, { users: p.users, groups: p.groups }]));
     }
 
     _commandHash(server, command) {
@@ -33,7 +23,7 @@ class ExecutionPolicy {
     * @typedef {{users: string[], groups: string[]}} Subjects
     * @param {{add: Subjects, remove: Subjects} options
     */
-    async change(serverId, command, options) {
+    change(serverId, command, options) {
         const isAddEmpty = this._isSubjectsEmpty(options.add);
         const isRemoveEmpty = this._isSubjectsEmpty(options.remove);
         if (isAddEmpty && isRemoveEmpty)
@@ -45,11 +35,11 @@ class ExecutionPolicy {
         if (!foundPolicy && isAddEmpty)
             return;
 
-        const bulk = [];
+        const realChanges = { created: false, add: { users: [], groups: [] }, remove: { users: [], groups: [] } };
         if (!foundPolicy) {
+            realChanges.created = true;
             foundPolicy = { users: [], groups: [] };
             this.permissions.set(cmdHash, foundPolicy);
-            bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $set: { users: [], groups: [] } }, upsert: true } });
         }
 
         const dupUsers = options.add.users.filter(x => options.remove.users.indexOf(x) != -1);
@@ -84,12 +74,12 @@ class ExecutionPolicy {
         foundPolicy.users = foundPolicy.users.filter(x => !removedUsers.has(x));
         foundPolicy.groups = foundPolicy.groups.filter(x => !removedGroups.has(x));
 
-        addedUsers.length > 0 && bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $push: { users: { $each: addedUsers } } }, upsert: true } });
-        addedGroups.length > 0 && bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $push: { groups: { $each: addedGroups } } }, upsert: true } });
-        removedUsers.length > 0 && bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $pullAll: { users: removedUsers } }, upsert: true } });
-        removedGroups.length > 0 && bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $pullAll: { groups: removedGroups } }, upsert: true } });
+        addedUsers.length > 0 && (realChanges.add.users = addedUsers);
+        addedGroups.length > 0 && (realChanges.add.groups = addedGroups);
+        removedUsers.length > 0 && (realChanges.remove.users = removedUsers);
+        removedGroups.length > 0 && (realChanges.remove.groups = removedGroups);
 
-        Services.resolve('storage').collection(this.collection).bulkWrite(bulk);
+        return realChanges;
     }
 
     check(msg, command) {

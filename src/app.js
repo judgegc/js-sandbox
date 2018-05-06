@@ -16,6 +16,7 @@ const EmojiStatsStorage = require('./emoji-stats/storage-adapter');
 const EmojiUsageCollector = require('./emoji-stats/emoji-usage-collector');
 const MessageParser = require('./message-parser');
 const ExecutionPolicy = require('./execution-policy');
+const PersistentExecutionPolicy = require('./persistent-execution-policy');
 
 const SandboxManager = require('./js-sandbox/sandbox-manager');
 
@@ -25,10 +26,9 @@ class App {
     async run() {
         const botToken = process.env['bot-token'] || settings['bot-token'];
         const mongoConnStr = process.env['MONGODB_URI'] || process.env['MONGOLAB_URI'] || process.env['MONGOHQ_URL'];
-
+        let db = null;
         try {
-            const storage = await MongoClient.connect(mongoConnStr, { reconnectInterval: 60000 });
-            Services.register('storage', storage);
+            db = await MongoClient.connect(mongoConnStr, { reconnectInterval: 60000 });
         } catch (e) {
             console.error('Storage not available. Exiting.');
             process.exit();
@@ -39,7 +39,7 @@ class App {
 
         const msgParser = new MessageParser();
 
-        const cmdProc = new PersistentCommandProcessor(Services.resolve('storage'));
+        const cmdProc = new PersistentCommandProcessor(db);
 
         if (!settings['init-allow-commands'].every(x => cmdProc.commands.hasOwnProperty(x))) {
             console.error('\'init-allow-commands\' contain unknown command.');
@@ -50,7 +50,7 @@ class App {
 
         const client = new Discord.Client({ autoReconnect: true });
 
-        const statsStorage = new EmojiStatsStorage();
+        const statsStorage = new EmojiStatsStorage(db);
         const collector = new EmojiUsageCollector(client, await statsStorage.loadAll());
 
         let autosaveTimer = null;
@@ -72,7 +72,7 @@ class App {
             await statsStorage.updateSettings(e.serverId, e.settings);
         });
 
-        const guard = new ExecutionPolicy(cmdProc.commands);
+        const guard = new PersistentExecutionPolicy(db);
         await guard.loadPermissions();
 
         Services.register('client', client);

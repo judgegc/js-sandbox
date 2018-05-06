@@ -9,8 +9,8 @@ class StorageAdapter {
   * @property {string} [output] Channel id for unloading statistics
   */
 
-    constructor() {
-        this.storage = Services.resolve('storage').collection('emoji_stats');
+    constructor(db) {
+        this.storage = db.collection('emoji_stats');
     }
 
     /**
