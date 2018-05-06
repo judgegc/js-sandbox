@@ -44,7 +44,9 @@ class EmojiUsageStatsCommand {
                     return Promise.resolve('Server not configured.');
                 }
                 const outputChannel = msg.guild.channels.get(serverStats.output);
-                status += `Enabled: ${serverStats.enabled}\nInterval: ${serverStats.interval}\nOutput: #${outputChannel && outputChannel.name || 'unknown'}\nNext flush: ${new Date(serverStats.flush)}`;
+                const chl = outputChannel && outputChannel.name || 'unknown';
+                const flushDate = new Date(serverStats.flush);
+                status += `Enabled: ${serverStats.enabled}\nInterval: ${serverStats.interval}\nOutput: #${chl}\nNext flush: ${flushDate}`;
                 return Promise.resolve(status);
             default:
                 break;

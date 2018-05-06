@@ -17,8 +17,11 @@ class SandboxManager {
 
     /**
      * Send source code to available sandbox instance
-     * @param {string} sourceCode 
-     * @return {number} response id
+     * @param {string} sourceCode source code
+     * @param {Object} external extra info
+     * @param {string} state stringified state object
+     * @param {string[]} args arguments array
+     * @return {Promise} response id
      */
     send(sourceCode, external, state, args) {
         const availableInstance = this._getFreeInstance();

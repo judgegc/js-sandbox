@@ -16,19 +16,18 @@ process.on('message', data => {
     let result;
     const response = [];
     const commandState = JSON.parse(data.state);
-    let pendingCbs = [];
-    let timeoutTimer;
+    const pendingCbs = [];
+    let timeoutTimer = -1;
 
     function sendResponse() {
         clearTimeout(timeoutTimer);
         const stateStr = JSON.stringify(commandState);
-        
-        if (stateStr.length > STATE_CAPACITY) {
-            process.send({ response: `Error: State size limit has been reached. (Capacity: ${STATE_CAPACITY}, actual: ${stateStr.length})` });
-        } else {
-            process.send({ state: stateStr, response: response.join('\n') });
-        }
 
+        const r = stateStr.length > STATE_CAPACITY ?
+            { response: `Error: State size limit has been reached. (Capacity: ${STATE_CAPACITY}, actual: ${stateStr.length})` } :
+            { state: stateStr, response: response.join('\n') };
+
+        process.send(r);
     }
 
     function injectCbCounter(target, thisVal, args) {
@@ -37,13 +36,13 @@ process.on('message', data => {
             if (!pendingCbs.length) {
                 setTimeout(sendResponse);
             }
-            try{
+            try {
                 return a.apply(thisVal, arguments);
             }
-            catch(e) {
+            catch (e) {
                 response.push(e.toString());
             }
-
+            return undefined;
         } : a);
     }
 
@@ -108,7 +107,6 @@ process.on('message', data => {
 
         sendResponse();
     }, EXECUTION_TIMEOUT - Date.now() + startTime);
-
 });
 
 process.on('uncaughtException', (err) => {

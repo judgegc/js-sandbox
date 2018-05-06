@@ -46,7 +46,11 @@ class Instance {
     }
 
     _startInstance() {
-        this._worker = childProcess.fork('src/js-sandbox/worker.js', { execArgv: ['--max-old-space-size=' + this.MEMORY_LIMIT], detached: true });
+        this._worker = childProcess.fork('src/js-sandbox/worker.js',
+            {
+                execArgv: ['--max-old-space-size=' + this.MEMORY_LIMIT],
+                detached: true
+            });
     }
 }
 

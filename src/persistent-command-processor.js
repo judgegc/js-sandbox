@@ -12,18 +12,23 @@ class PersistentCommandProcessor extends CommandProcessor {
         (await this.storage.find().toArray())
             .forEach(doc => {
                 const [serverId, name] = doc._id.split(this.INDEX_DELIM);
-                const server = this._customCommands.get(serverId);
-                if (server) {
-                    server.set(name, { name, owner: doc.owner, desc: doc.desc, sourceCode: doc.sourceCode, state: doc.state });
+                const serverCommands = this._customCommands.get(serverId);
+                const cmd = { name, owner: doc.owner, desc: doc.desc, sourceCode: doc.sourceCode, state: doc.state };
+
+                if (serverCommands) {
+                    serverCommands.set(name, cmd);
                 } else {
-                    this._customCommands.set(serverId, new Map([[name, { name, owner: doc.owner, desc: doc.desc, sourceCode: doc.sourceCode, state: doc.state }]]));
+                    this._customCommands.set(serverId, new Map([[name, cmd]]));
                 }
             });
     }
 
     async createCommand(server, name, desc, owner, sourceCode) {
         super.createCommand(server, name, desc, owner, sourceCode);
-        await this.storage.updateOne({ _id: this._hashIndex(server, name) }, { $set: { owner, desc, sourceCode, state: this.emptyState } }, { upsert: true });
+        await this.storage.updateOne(
+            { _id: this._hashIndex(server, name) },
+            { $set: { owner, desc, sourceCode, state: this.emptyState } },
+            { upsert: true });
     }
 
     async removeCommand(serverId, name) {

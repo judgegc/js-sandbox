@@ -91,7 +91,9 @@ class App {
                 conole.error(e.message);
             }
 
-            updateTitleTimer = setInterval(() => client.user.setActivity('Up: ' + prettyMs(process.uptime() * 1000)), Number.parseInt(settings['update-status-interval']));
+            updateTitleTimer = setInterval(() => {
+                client.user.setActivity('Up: ' + prettyMs(process.uptime() * 1000));
+            }, Number.parseInt(settings['update-status-interval']));
         });
 
         client.on('disconnect', () => {
@@ -131,7 +133,8 @@ class App {
 
         client.on('guildCreate', guild => {
             const policy = Services.resolve('executionpolicy');
-            settings['init-allow-commands'].forEach(x => policy.change(guild.id, x, { add: { users: [], groups: [guild.id] }, remove: { users: [], groups: [] } }));
+            settings['init-allow-commands']
+                .forEach(x => policy.change(guild.id, x, { add: { users: [], groups: [guild.id] }, remove: { users: [], groups: [] } }));
         });
 
         client.on('error', (error) => {
@@ -144,7 +147,6 @@ class App {
             console.error(e.message);
             process.exit();
         }
-
 
         process.on('SIGINT', async () => {
             await statsStorage.updateAllStats(collector.allStats);

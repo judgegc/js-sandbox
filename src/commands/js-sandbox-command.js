@@ -13,13 +13,14 @@ class JsSandboxCommand {
     }
 
     execute(client, msg) {
-        return this._sandboxManager.send(this.sourceCode, JsSandboxCommand.buildExternal(client, msg), this._state, this._args).then(result => {
-            const filtered = new ResponseSizeFilter(result.response).filter();
-            if (!filtered) {
-                return Promise.reject();
-            }
-            return Promise.resolve(filtered);
-        });
+        return this._sandboxManager.send(this.sourceCode, JsSandboxCommand.buildExternal(client, msg), this._state, this._args)
+            .then(result => {
+                const filtered = new ResponseSizeFilter(result.response).filter();
+                if (!filtered) {
+                    return Promise.reject();
+                }
+                return Promise.resolve(filtered);
+            });
     }
 
     static buildExternal(client, msg) {

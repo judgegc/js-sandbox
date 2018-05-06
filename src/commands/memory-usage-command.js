@@ -16,12 +16,13 @@ class MemoryUsageCommand {
             return new Promise((resolve, reject) => {
                 switch (os.platform()) {
                     case 'linux':
-                        childProcess.exec('ps -eo nlwp | tail -n +2 | awk \'{ num_threads += $1 } END { print num_threads }\'', (error, stdout, stderr) => {
-                            if (error) {
-                                resolve('unknown');
-                            }
-                            resolve(stdout.slice(0, -1));
-                        });
+                        childProcess.exec('ps -eo nlwp | tail -n +2 | awk \'{ num_threads += $1 } END { print num_threads }\'',
+                            (error, stdout, stderr) => {
+                                if (error) {
+                                    resolve('unknown');
+                                }
+                                resolve(stdout.slice(0, -1));
+                            });
                         break;
                     default:
                         resolve('unknown');

@@ -18,7 +18,9 @@ class ReactCommand {
         const channel = idxOff ? msg.channel : client.channels.get(this.args[0]);
         if (channel) {
             channel.fetchMessage(this.args[1 - idxOff])
-                .then(m => m.react(new CustomEmojiFilter(this.args[2 - idxOff]).filter(client.guilds, msg.guild.id).slice(1, -1)).catch(e => e))
+                .then(m => m
+                    .react(new CustomEmojiFilter(this.args[2 - idxOff]).filter(client.guilds, msg.guild.id).slice(1, -1))
+                    .catch(e => e))
                 .catch(e => e);
         }
         return Promise.reject();

@@ -26,24 +26,26 @@ class ExecutionPolicy {
     change(serverId, command, options) {
         const isAddEmpty = this._isSubjectsEmpty(options.add);
         const isRemoveEmpty = this._isSubjectsEmpty(options.remove);
-        if (isAddEmpty && isRemoveEmpty)
-            return;
+        const realChanges = { created: false, add: { users: [], groups: [] }, remove: { users: [], groups: [] } };
+        if (isAddEmpty && isRemoveEmpty) {
+            return realChanges;
+        }
 
         const cmdHash = this._commandHash(serverId, command);
         let foundPolicy = this.permissions.get(cmdHash);
 
-        if (!foundPolicy && isAddEmpty)
-            return;
+        if (!foundPolicy && isAddEmpty) {
+            return realChanges;
+        }
 
-        const realChanges = { created: false, add: { users: [], groups: [] }, remove: { users: [], groups: [] } };
         if (!foundPolicy) {
             realChanges.created = true;
             foundPolicy = { users: [], groups: [] };
             this.permissions.set(cmdHash, foundPolicy);
         }
 
-        const dupUsers = options.add.users.filter(x => options.remove.users.indexOf(x) != -1);
-        const dupGroups = options.add.groups.filter(x => options.remove.groups.indexOf(x) != -1);
+        const dupUsers = options.add.users.filter(x => options.remove.users.indexOf(x) !== -1);
+        const dupGroups = options.add.groups.filter(x => options.remove.groups.indexOf(x) !== -1);
 
         options.add.users = options.add.users.filter(x => !dupUsers.includes(x));
         options.remove.users = options.remove.users.filter(x => !dupUsers.includes(x));
@@ -56,15 +58,17 @@ class ExecutionPolicy {
 
         const addedUsers = [];
         for (const au of options.add.users) {
-            if (!users.has(au))
+            if (!users.has(au)) {
                 addedUsers.push(au);
+            }
         }
         foundPolicy.users.push.apply(foundPolicy.users, addedUsers);
 
         const addedGroups = [];
         for (const ag of options.add.groups) {
-            if (!groups.has(ag))
+            if (!groups.has(ag)) {
                 addedGroups.push(ag);
+            }
         }
         foundPolicy.groups.push.apply(foundPolicy.groups, addedGroups);
 

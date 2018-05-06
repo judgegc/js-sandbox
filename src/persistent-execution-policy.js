@@ -14,13 +14,23 @@ class PersistentExecutionPolicy extends ExecutionPolicy {
     async change(serverId, command, options) {
         const bulk = [];
         const changes = super.change(serverId, command, options);
-        const cmdHash = this._commandHash(serverId, command);
+        const id = this._commandHash(serverId, command);
 
-        changes.created && bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $set: { users: [], groups: [] } }, upsert: true } });
-        changes.add.users.length > 0 && bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $push: { users: { $each: changes.add.users } } }, upsert: true } });
-        changes.add.groups.length > 0 && bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $push: { groups: { $each: changes.add.groups } } }, upsert: true } });
-        changes.remove.users.length > 0 && bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $pullAll: { users: changes.remove.users } }, upsert: true } });
-        changes.remove.groups.length > 0 && bulk.push({ updateOne: { filter: { _id: cmdHash }, update: { $pullAll: { groups: changes.remove.groups } }, upsert: true } });
+        if (changes.created) {
+            bulk.push({ updateOne: { filter: { _id: id }, update: { $set: { users: [], groups: [] } }, upsert: true } });
+        }
+        if (changes.add.users.length > 0) {
+            bulk.push({ updateOne: { filter: { _id: id }, update: { $push: { users: { $each: changes.add.users } } }, upsert: true } });
+        }
+        if (changes.add.groups.length > 0) {
+            bulk.push({ updateOne: { filter: { _id: id }, update: { $push: { groups: { $each: changes.add.groups } } }, upsert: true } });
+        }
+        if (changes.remove.users.length > 0) {
+            bulk.push({ updateOne: { filter: { _id: id }, update: { $pullAll: { users: changes.remove.users } }, upsert: true } });
+        }
+        if (changes.remove.groups.length > 0) {
+            bulk.push({ updateOne: { filter: { _id: id }, update: { $pullAll: { groups: changes.remove.groups } }, upsert: true } });
+        }
 
         await this.storage.bulkWrite(bulk);
     }
