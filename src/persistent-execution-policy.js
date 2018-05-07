@@ -12,9 +12,15 @@ class PersistentExecutionPolicy extends ExecutionPolicy {
     }
 
     async change(serverId, command, options) {
-        const bulk = [];
         const changes = super.change(serverId, command, options);
         const id = this._commandHash(serverId, command);
+
+        if (changes.deleted) {
+            this.storage.deleteOne({ _id: id });
+            return;
+        }
+
+        const bulk = [];
 
         if (changes.created) {
             bulk.push({ updateOne: { filter: { _id: id }, update: { $set: { users: [], groups: [] } }, upsert: true } });
@@ -33,6 +39,15 @@ class PersistentExecutionPolicy extends ExecutionPolicy {
         }
 
         await this.storage.bulkWrite(bulk);
+    }
+
+    async removeServer(serverId) {
+        const p = super.removeServer(serverId);
+        if (p.length === 0) {
+            return;
+        }
+
+        await this.storage.deleteMany({ _id: { $in: p.map(x => x.id) } });
     }
 }
 

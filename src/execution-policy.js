@@ -26,7 +26,7 @@ class ExecutionPolicy {
     change(serverId, command, options) {
         const isAddEmpty = this._isSubjectsEmpty(options.add);
         const isRemoveEmpty = this._isSubjectsEmpty(options.remove);
-        const realChanges = { created: false, add: { users: [], groups: [] }, remove: { users: [], groups: [] } };
+        const realChanges = { created: false, deleted: false, add: { users: [], groups: [] }, remove: { users: [], groups: [] } };
         if (isAddEmpty && isRemoveEmpty) {
             return realChanges;
         }
@@ -83,6 +83,8 @@ class ExecutionPolicy {
         removedUsers.length > 0 && (realChanges.remove.users = removedUsers);
         removedGroups.length > 0 && (realChanges.remove.groups = removedGroups);
 
+        realChanges.deleted = this._isSubjectsEmpty(foundPolicy);
+
         return realChanges;
     }
 
@@ -102,6 +104,19 @@ class ExecutionPolicy {
 
         return commandPermissions.users.includes(msg.author.id) ||
             commandPermissions.groups.some(gid => msg.channel.guild.members.get(msg.author.id).roles.map(r => r.id).includes(gid));
+    }
+
+    serverPermissions(serverId) {
+        return [...this.permissions
+            .entries()]
+            .filter(x => x[0].startsWith(serverId))
+            .map(x => ({ id: x[0], users: x[1].users, groups: x[1].groups }));
+    }
+
+    removeServer(serverId) {
+        const p = this.serverPermissions(serverId);
+        p.forEach(x => this.permissions.delete(x.id));
+        return p;
     }
 }
 

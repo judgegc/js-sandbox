@@ -142,6 +142,11 @@ class App {
                 .forEach(x => policy.change(guild.id, x, { add: { users: [], groups: [guild.id] }, remove: { users: [], groups: [] } }));
         });
 
+        client.on('guildDelete', guild => {
+            const policy = Services.resolve('executionpolicy');
+            policy.removeServer(guild.id);
+        });
+
         client.on('error', (error) => {
             console.log(error.message);
         });
