@@ -119,6 +119,11 @@ class App {
 
             try {
                 let response = await command.execute(client, msg);
+
+                if (!msg.channel.permissionsFor(client.user).has('SEND_MESSAGES')) {
+                    return;
+                }
+
                 if (typeof response === 'string') {
                     response = new CustomEmojiFilter(response).filter(client.guilds, msg.guild.id);
                     response = new ChannelMentionResolver(response).resolve(msg);
