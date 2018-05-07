@@ -121,7 +121,7 @@ Counter: 3
 ```
 
 # How to install
-
+[Dev instance](https://discordapp.com/oauth2/authorize?client_id=368800242948243457&scope=bot&permissions=3072)
 ## **Own server**
 
 Clone repository
