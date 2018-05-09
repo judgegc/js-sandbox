@@ -1,9 +1,7 @@
-const Util = require('./../util');
-
 class SubscribeCommand {
     constructor(args) {
-        this.args = args;
-        this.permissions = {
+        this._args = args;
+        this._permissions = {
             READ_MESSAGES: true,
             SEND_MESSAGES: true
         };
@@ -17,7 +15,7 @@ class SubscribeCommand {
                 return;
             }
 
-            channel.overwritePermissions(user, this.permissions).catch(e => e);
+            channel.overwritePermissions(user, this._permissions).catch(e => e);
         }
     }
 
@@ -29,16 +27,16 @@ class SubscribeCommand {
     }
 
     execute(client, msg) {
-        if (this.args.length < 1) {
+        if (this._args.length < 1) {
             return Promise.reject();
         }
 
-        if (this.args[0] === '--all') {
+        if (this._args[0] === '--all') {
             this._subscribeAll(msg);
             return Promise.reject();
         }
 
-        const channelName = this.args[0];
+        const channelName = this._args[0];
         const channel = [...msg.channel.guild.channels].map(x => x[1]).find(c => c.name === channelName);
         if (channel) {
             this._subscribe(msg.author, channel);

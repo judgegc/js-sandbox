@@ -2,12 +2,11 @@ const childProcess = require('child_process');
 const os = require('os');
 const bytes = require('bytes');
 
-const Util = require('./../util');
 const settings = require('./../../settings.json');
 
 class MemoryUsageCommand {
     constructor(args) {
-        this.args = args;
+        this._args = args;
     }
 
     async execute(client, msg) {

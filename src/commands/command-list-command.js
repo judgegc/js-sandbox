@@ -1,8 +1,7 @@
-const Services = require('./../services');
-
 class CommandListCommand {
-    constructor(args) {
-        this.args = args;
+    constructor(args, customCommandManager) {
+        this._args = args;
+        this._customCommandManager = customCommandManager;
     }
 
     execute(client, msg) {
@@ -10,13 +9,12 @@ class CommandListCommand {
             const userObj = client.users.get(userId);
             return userObj && userObj.tag || userId;
         };
-        const cmdProc = Services.resolve('commandprocessor');
-        const serverCommands = cmdProc.getCustomCommands(msg.guild.id);
+        const serverCommands = this._customCommandManager.getCommands(msg.guild.id);
         if (!(serverCommands && serverCommands.size > 0)) {
             return Promise.resolve('Nothing here');
         }
 
-        if (!this.args.length) {
+        if (!this._args.length) {
             return Promise
                 .resolve(
                     [...serverCommands]
@@ -24,7 +22,7 @@ class CommandListCommand {
                         .join('\n'));
         }
 
-        if (this.args.length >= 1 && this.args[0] === '--my') {
+        if (this._args.length >= 1 && this._args[0] === '--my') {
             return Promise
                 .resolve(
                     [...serverCommands]

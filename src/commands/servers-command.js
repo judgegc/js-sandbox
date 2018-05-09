@@ -1,6 +1,6 @@
 class ServersCommand {
     constructor(args) {
-        this.args = args;
+        this._args = args;
     }
 
     execute(client, msg) {

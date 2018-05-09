@@ -88,16 +88,12 @@ class ExecutionPolicy {
         return realChanges;
     }
 
-    check(msg, command) {
-        if (command.type !== 'command') {
-            return true;
-        }
-
+    check(msg, name) {
         if (msg.author.id === this.superAdmin) {
             return true;
         }
 
-        const commandPermissions = this.permissions.get(this._commandHash(msg.channel.guild.id, command.name));
+        const commandPermissions = this.permissions.get(this._commandHash(msg.channel.guild.id, name));
         if (!commandPermissions) {
             return false;
         }

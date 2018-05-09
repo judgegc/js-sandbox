@@ -5,8 +5,6 @@ const prettyMs = require('pretty-ms');
 const CustomEmojiFilter = require('./../filters/custom-emoji-filter');
 const Util = require('./../util');
 
-const Services = require('./../services');
-
 class EmojiUsageCollector extends EventEmitter {
     constructor(client, stats) {
         super();

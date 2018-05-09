@@ -1,9 +1,8 @@
 const colors = require('color-name');
-const Util = require('./../util');
 
 class ColorCommand {
     constructor(args) {
-        this.args = args;
+        this._args = args;
     }
 
     _genRoleName(userId) {
@@ -24,11 +23,11 @@ class ColorCommand {
     }
 
     execute(client, msg) {
-        if (this.args.length < 1) {
+        if (this._args.length < 1) {
             return Promise.reject();
         }
 
-        if (this.args[0] === '--purge') {
+        if (this._args[0] === '--purge') {
             const colorRole = this._findColorRole(msg);
             if (colorRole) {
                 colorRole.delete().catch(e => e);
@@ -36,7 +35,7 @@ class ColorCommand {
             return Promise.reject();
         }
 
-        const color = this._parseColor(this.args[0]);
+        const color = this._parseColor(this._args[0]);
         if (!color) {
             return Promise.reject();
         }

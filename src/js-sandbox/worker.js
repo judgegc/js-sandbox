@@ -48,16 +48,18 @@ process.on('message', data => {
 
     const pRequest = new Proxy(request, {
         apply: (target, thisValue, args) => {
-            pendingCbs.push(target);
-            return target.apply(thisValue, injectCbCounter(target, thisValue, args));
+            const rcb = target.apply(thisValue, injectCbCounter(target, thisValue, args));
+            pendingCbs.push(rcb);
+            return rcb;
         },
         get: (target, name) => {
             const methodProxy = new Proxy(target[name], {
                 apply: (mTarget, thisValue, args) => {
+                    const rcb = mTarget.apply(thisValue, injectCbCounter(target, thisValue, args));
                     if (['get', 'head', 'post', 'put', 'patch', 'del', 'delete'].includes(name)) {
-                        pendingCbs.push(target);
+                        pendingCbs.push(rcb);
                     }
-                    return mTarget.apply(thisValue, injectCbCounter(target, thisValue, args));
+                    return rcb;
                 }
             });
             return methodProxy;

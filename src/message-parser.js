@@ -6,13 +6,14 @@ class MessageParser {
     constructor() {
         const prefix = Util.escapeRegExp(settings['commands-prefix']);
         this.cmdPattern = new RegExp(`^${prefix}(\\w+)(?: (.+))?`);
+        this._argsParser = new ArgsParser();
     }
     parse(msg) {
         let found = null;
         if (found = msg.match(/```([a-zA-Z]*)\n([\s\S]*?)\n```/)) {
             return { type: 'source_code', language: found[1], content: found[2] };
         } else if (found = msg.match(this.cmdPattern)) {
-            return { type: 'command', name: found[1], args: new ArgsParser().parse(found[2]) };
+            return { type: 'command', name: found[1], args: this._argsParser.parse(found[2]) };
         }
         return { type: 'unknown', content: msg };
     }

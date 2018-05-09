@@ -5,103 +5,98 @@ const MongoClient = require('mongodb').MongoClient;
 const Util = require('./util');
 
 const settings = require('./../settings.json');
-const JsSandboxCommand = require('./commands/js-sandbox-command');
+
 const CommandProcessor = require('./command-processor');
-const PersistentCommandProcessor = require('./persistent-command-processor');
-
-const CustomEmojiFilter = require('./filters/custom-emoji-filter');
-const ChannelMentionResolver = require('./filters/channel-mention-resolver');
-
 const EmojiStatsStorage = require('./emoji-stats/storage-adapter');
 const EmojiUsageCollector = require('./emoji-stats/emoji-usage-collector');
 const MessageParser = require('./message-parser');
 const ExecutionPolicy = require('./execution-policy');
 const PersistentExecutionPolicy = require('./persistent-execution-policy');
-
+const PersistentCustomCommandsManager = require('./persistent-custom-commands-manager');
+const CommandFactory = require('./command-factory');
+const ServerInfoExtractor = require('./server-info-extractor');
+const CustomCommandParser = require('./parsers/custom-command-parser');
 const SandboxManager = require('./js-sandbox/sandbox-manager');
 
-const Services = require('./services');
+const { CustomEmojiFilter, ChannelMentionResolver, ResponseSizeFilter } = require('./filters');
 
 class App {
-    async run() {
-        const botToken = process.env['bot-token'] || settings['bot-token'];
+    async init() {
         const mongoConnStr = process.env['MONGODB_URI'] || process.env['MONGOLAB_URI'] || process.env['MONGOHQ_URL'];
-        let db = null;
+
         try {
-            db = await MongoClient.connect(mongoConnStr, { reconnectInterval: 60000 });
+            this._db = await MongoClient.connect(mongoConnStr, { reconnectInterval: 60000 });
         } catch (e) {
             console.error('Storage not available. Exiting.');
             process.exit();
         }
+        this._sandboxManager = new SandboxManager();
+        this._msgParser = new MessageParser();
+        this._customCommandsManager = new PersistentCustomCommandsManager(this._db);
+        this._client = new Discord.Client({ autoReconnect: true });
+        this._statsStorage = new EmojiStatsStorage(this._db);
+        this._collector = new EmojiUsageCollector(this._client, await this._statsStorage.loadAll());
+        this._guard = new PersistentExecutionPolicy(this._db);
+        this._commandFactory = new CommandFactory(this._customCommandsManager, this._collector);
+        this._cmdProc = new CommandProcessor(this._commandFactory, this._sandboxManager, this._customCommandsManager);
+    }
 
-        const sandboxManager = new SandboxManager();
-        sandboxManager.start();
+    async run() {
+        const botToken = process.env['bot-token'] || settings['bot-token'];
 
-        const msgParser = new MessageParser();
+        await this.init();
 
-        const cmdProc = new PersistentCommandProcessor(db);
+        this._sandboxManager.start();
 
-        if (!settings['init-allow-commands'].every(x => cmdProc.commands.hasOwnProperty(x))) {
+        if (!settings['init-allow-commands'].every(x => this._commandFactory.has(x))) {
             console.error('\'init-allow-commands\' contain unknown command.');
             process.exit();
         }
 
-        await cmdProc.loadCustomCommands();
-
-        const client = new Discord.Client({ autoReconnect: true });
-
-        const statsStorage = new EmojiStatsStorage(db);
-        const collector = new EmojiUsageCollector(client, await statsStorage.loadAll());
+        await this._customCommandsManager.loadCustomCommands();
 
         let autosaveTimer = null;
-        collector.on('start', () => {
+        this._collector.on('start', () => {
             autosaveTimer = setInterval(async () => {
-                await statsStorage.updateAllStats(collector.allStats);
+                await this._statsStorage.updateAllStats(this._collector.allStats);
             }, Number.parseInt(settings['emoji-collector']['auto-save']));
         });
 
-        collector.on('stop', () => {
+        this._collector.on('stop', () => {
             clearInterval(autosaveTimer);
         });
 
-        collector.on('flush', async () => {
-            await statsStorage.updateAllStats(collector.allStats);
+        this._collector.on('flush', async () => {
+            await this._statsStorage.updateAllStats(this._collector.allStats);
         });
 
-        collector.on('settingsUpdate', async (e) => {
-            await statsStorage.updateSettings(e.serverId, e.settings);
+        this._collector.on('settingsUpdate', async (e) => {
+            await this._statsStorage.updateSettings(e.serverId, e.settings);
         });
 
-        const guard = new PersistentExecutionPolicy(db);
-        await guard.loadPermissions();
-
-        Services.register('client', client);
-        Services.register('commandprocessor', cmdProc);
-        Services.register('emojicollector', collector);
-        Services.register('sandboxmanager', sandboxManager);
-        Services.register('executionpolicy', guard);
+        await this._guard.loadPermissions();
 
         let updateTitleTimer = null;
 
-        client.on('ready', async () => {
-            console.log(`Logged in as ${client.user.tag}!`);
+        this._client.on('ready', async () => {
+            console.log(`Logged in as ${this._client.user.tag}!`);
             try {
-                collector.init();
+                this._collector.init();
             } catch (e) {
                 conole.error(e.message);
             }
 
             updateTitleTimer = setInterval(() => {
-                client.user.setActivity('Up: ' + prettyMs(process.uptime() * 1000));
+                this._client.user.setActivity('Up: ' + prettyMs(process.uptime() * 1000));
             }, Number.parseInt(settings['update-status-interval']));
         });
 
-        client.on('disconnect', () => {
+        this._client.on('disconnect', () => {
             clearInterval(updateTitleTimer);
         });
 
-        client.on('message', async msg => {
-            if (client.user.id === msg.author.id || msg.author.bot) {
+        this._client.on('message', async msg => {
+            if (this._client.user.id === msg.author.id || msg.author.bot) {
                 return;
             }
 
@@ -109,57 +104,83 @@ class App {
                 return;
             }
 
-            const mock = msgParser.parse(msg.content);
+            const mock = this._msgParser.parse(msg.content);
 
-            if (!(cmdProc.hasCustomCommand(msg.guild.id, mock.name) || guard.check(msg, mock))) {
-                return;
-            }
-
-            const command = cmdProc.process(mock, msg.guild.id);
-
+            let response = null;
             try {
-                let response = await command.execute(client, msg);
+                if (mock.type === 'command') {
+                    if (!(this._customCommandsManager.hasCommand(msg.guild.id, mock.name) || this._guard.check(msg, mock.name))) {
+                        return;
+                    }
 
-                if (!msg.channel.permissionsFor(client.user).has('SEND_MESSAGES')) {
-                    return;
+                    response = await this._cmdProc
+                        .process(mock, msg.guild.id)
+                        .execute(this._client, msg);
+
+                    if (!msg.channel.permissionsFor(this._client.user).has('SEND_MESSAGES')) {
+                        return;
+                    }
+                } else if (mock.type === 'source_code' && settings['js-sandbox']['prefix'].includes(mock.language.toLowerCase())) {
+                    const customCmdParser = new CustomCommandParser();
+                    if (customCmdParser.isCustomCmdSourceCode(mock.content)) {
+                        const ccmd = customCmdParser.parse(mock.content);
+                        if (this._commandFactory.has(ccmd.name)) {
+                            throw new Error(`\`${ccmd.name}\` is reserved`);
+                        }
+
+                        const foundCcmd = this._customCommandsManager.getCommand(msg.guild.id, ccmd.name);
+                        if (foundCcmd && foundCcmd.owner !== msg.author.id) {
+                            const ownerObj = client.users.get(foundCmd.owner);
+                            throw new Error(`Command '${ccmd.name}' already owned by ${ownerObj ? ownerObj.username : foundCcmd.owner}`);
+                        }
+                        this._customCommandsManager.createCommand(msg.guild.id, msg.author.id, ccmd.name, ccmd.description, ccmd.sourceCode);
+                        return;
+                    }
+
+                    const result = await this._sandboxManager.send(mock.content, ServerInfoExtractor.extract(msg), JSON.stringify({}), []);
+                    const filtered = new ResponseSizeFilter(result.response).filter();
+                    if (!filtered) {
+                        return;
+                    }
+
+                    response = filtered;
                 }
 
                 if (typeof response === 'string') {
-                    response = new CustomEmojiFilter(response).filter(client.guilds, msg.guild.id);
+                    response = new CustomEmojiFilter(response).filter(this._client.guilds, msg.guild.id);
                     response = new ChannelMentionResolver(response).resolve(msg);
                     await msg.channel.send(response);
                 }
-            } catch (e) {
+            }
+            catch (e) {
                 if (e) {
                     await msg.channel.send(e.message);
                 }
             }
         });
 
-        client.on('guildCreate', guild => {
-            const policy = Services.resolve('executionpolicy');
+        this._client.on('guildCreate', guild => {
             settings['init-allow-commands']
-                .forEach(x => policy.change(guild.id, x, { add: { users: [], groups: [guild.id] }, remove: { users: [], groups: [] } }));
+                .forEach(x => this._guard.change(guild.id, x, { add: { users: [], groups: [guild.id] }, remove: { users: [], groups: [] } }));
         });
 
-        client.on('guildDelete', guild => {
-            const policy = Services.resolve('executionpolicy');
-            policy.removeServer(guild.id);
+        this._client.on('guildDelete', guild => {
+            this._guard.removeServer(guild.id);
         });
 
-        client.on('error', (error) => {
+        this._client.on('error', (error) => {
             console.log(error.message);
         });
 
         try {
-            await client.login(botToken);
+            await this._client.login(botToken);
         } catch (e) {
             console.error(e.message);
             process.exit();
         }
 
         process.on('SIGINT', async () => {
-            await statsStorage.updateAllStats(collector.allStats);
+            await this._statsStorage.updateAllStats(this._collector.allStats);
         });
     }
 }

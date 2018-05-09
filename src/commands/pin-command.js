@@ -2,15 +2,15 @@ const Util = require('./../util');
 
 class PinCommand {
     constructor(args) {
-        this.args = args;
+        this._args = args;
     }
 
     async execute(client, msg) {
-        if (this.args.length < 1) {
+        if (this._args.length < 1) {
             return Promise.reject();
         }
 
-        const messageId = (this.args.length > 1 || !Util.isInteger(this.args[0])) ? msg.id : this.args[0];
+        const messageId = (this._args.length > 1 || !Util.isInteger(this._args[0])) ? msg.id : this._args[0];
 
         const pinMessage = await msg.channel.fetchMessage(messageId);
         await pinMessage.pin();

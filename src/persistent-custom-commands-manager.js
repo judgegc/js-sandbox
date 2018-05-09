@@ -1,6 +1,6 @@
-const CommandProcessor = require('./command-processor');
+const CustomCommandsManager = require('./custom-commands-manager');
 
-class PersistentCommandProcessor extends CommandProcessor {
+class PersistentCustomCommandsManager extends CustomCommandsManager {
     constructor(storage) {
         super();
         this.INDEX_DELIM = '_';
@@ -23,7 +23,7 @@ class PersistentCommandProcessor extends CommandProcessor {
             });
     }
 
-    async createCommand(server, name, desc, owner, sourceCode) {
+    async createCommand(server, owner, name, desc, sourceCode) {
         super.createCommand(server, name, desc, owner, sourceCode);
         await this.storage.updateOne(
             { _id: this._hashIndex(server, name) },
@@ -40,18 +40,9 @@ class PersistentCommandProcessor extends CommandProcessor {
         await this.storage.updateOne({ _id: this._hashIndex(serverId, command.name) }, { $set: { state: command.state } });
     }
 
-    getCommandOwner(serverId, name) {
-        const serverCommands = this._customCommands.get(serverId);
-        if (serverCommands) {
-            const cmdObj = serverCommands.get(name);
-            return cmdObj && cmdObj.owner;
-        }
-        return undefined;
-    }
-
     _hashIndex(server, name) {
         return `${server}${this.INDEX_DELIM}${name}`;
     }
 }
 
-module.exports = PersistentCommandProcessor;
+module.exports = PersistentCustomCommandsManager;

@@ -1,5 +1,4 @@
 module.exports = {
-    JsSandboxCommand: require('./js-sandbox-command'),
     GcCommand: require('./gc-command'),
     MemoryUsageCommand: require('./memory-usage-command'),
     SayCommand: require('./say-command'),
@@ -13,7 +12,6 @@ module.exports = {
     PinCommand: require('./pin-command'),
     UnpinCommand: require('./unpin-command'),
     EmojiUsageStatsCommand: require('./emoji-usage-stats-command'),
-    SaveCustomCommand: require('./save-custom-comand'),
     RemoveCustomCommand: require('./remove-custom-command'),
     CommandListCommand: require('./command-list-command'),
     CustomCommand: require('./custom-command')
