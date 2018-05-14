@@ -47,7 +47,7 @@ class ColorCommand {
         if (curRole) {
             curRole.setColor(color).catch(e => e);
         } else {
-            msg.channel.guild.createRole({ name: this._genRoleName(msg.author.id), color: color, position: botRole.calculatedPosition })
+            msg.channel.guild.createRole({ name: this._genRoleName(msg.author.id), color, position: botRole.calculatedPosition, permissions: 0 })
                 .then(r => msg.channel.guild.members.get(msg.author.id).addRole(r).catch(e => e))
                 .catch(e => e);
         }
