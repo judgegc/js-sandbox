@@ -107,15 +107,28 @@ class App {
             const mock = this._msgParser.parse(msg.content);
 
             let response = null;
+            let outChannel = msg.channel;
             try {
                 if (mock.type === 'command') {
                     if (!(this._customCommandsManager.hasCommand(msg.guild.id, mock.name) || this._guard.check(msg, mock.name))) {
                         return;
                     }
 
-                    response = await this._cmdProc
+                    const result = await this._cmdProc
                         .process(mock, msg.guild.id)
                         .execute(this._client, msg);
+
+                    if (result instanceof Object) {
+                        const out = result.output;
+                        if (out.hasOwnProperty('channel') && typeof out.channel === 'string') {
+                            const redirectedChannel = msg.guild.channels.get(out.channel);
+                            if (redirectedChannel) {
+                                outChannel = redirectedChannel;
+                            }
+                        }
+                    }
+
+                    response = typeof result === 'string' ? result : result.response;
 
                     if (!msg.channel.permissionsFor(this._client.user).has('SEND_MESSAGES')) {
                         return;
@@ -138,18 +151,13 @@ class App {
                     }
 
                     const result = await this._sandboxManager.send(mock.content, ServerInfoExtractor.extract(msg), JSON.stringify({}), []);
-                    const filtered = new ResponseSizeFilter(result.response).filter();
-                    if (!filtered) {
-                        return;
-                    }
-
-                    response = filtered;
+                    response = result.response;
                 }
-
-                if (typeof response === 'string') {
+                if (response) {
+                    response = new ResponseSizeFilter(response).filter();
                     response = new CustomEmojiFilter(response).filter(this._client.guilds, msg.guild.id);
                     response = new ChannelMentionResolver(response).resolve(msg);
-                    await msg.channel.send(response);
+                    await outChannel.send(response);
                 }
             }
             catch (e) {

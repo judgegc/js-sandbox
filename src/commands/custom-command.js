@@ -11,20 +11,15 @@ class CustomCommand {
     }
 
     async execute(client, msg) {
-        const externals = ServerInfoExtractor.extract(msg);
-        const result = await this._sandboxManager.send(this._command.sourceCode, externals, this._command.state, this._args);
+        const input = ServerInfoExtractor.extract(msg);
+        const result = await this._sandboxManager.send(this._command.sourceCode, input, this._command.state, this._args);
 
-        const stateHash = Util.md5(this._command.state);
-        if (result.state !== undefined && stateHash !== Util.md5(result.state)) {
+        if (result.state !== undefined && Util.md5(this._command.state) !== Util.md5(result.state)) {
             this._command.state = result.state;
             this._customCommandManager.saveState(msg.guild.id, this._command);
         }
 
-        const filtered = new ResponseSizeFilter(result.response).filter();
-        if (!filtered) {
-            throw undefined;
-        }
-        return filtered;
+        return result;
     }
 }
 

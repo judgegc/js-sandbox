@@ -18,6 +18,7 @@ process.on('message', data => {
     const commandState = JSON.parse(data.state);
     const pendingCbs = [];
     let timeoutTimer = -1;
+    const output = {};
 
     function sendResponse() {
         clearTimeout(timeoutTimer);
@@ -25,7 +26,7 @@ process.on('message', data => {
 
         const r = stateStr.length > STATE_CAPACITY ?
             { response: `Error: State size limit has been reached. (Capacity: ${STATE_CAPACITY}, actual: ${stateStr.length})` } :
-            { state: stateStr, response: response.join('\n') };
+            { state: stateStr, response: response.join('\n'), output  };
 
         process.send(r);
     }
@@ -72,12 +73,13 @@ process.on('message', data => {
             sandbox: {
                 state: commandState,
                 request: pRequest,
+                $out: output,
                 console: { log: (m) => response.push(typeof m === 'object' ? JSON.stringify(m) : m) }
             }
         });
 
         vm.freeze(Stat, 'Stat');
-        vm.freeze(data.external, 'external');
+        vm.freeze(data.external, '$in');
         vm.freeze(data.args, 'arguments');
         vm.freeze(prettyMs, 'Pms');
         vm.freeze(moment, 'moment');
