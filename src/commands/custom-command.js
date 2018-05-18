@@ -1,5 +1,4 @@
 const ServerInfoExtractor = require('./../server-info-extractor');
-const ResponseSizeFilter = require('./../filters/response-size-filter');
 const Util = require('./../util');
 
 class CustomCommand {

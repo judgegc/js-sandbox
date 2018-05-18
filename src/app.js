@@ -151,10 +151,9 @@ class App {
                     }
 
                     const result = await this._sandboxManager.send(mock.content, ServerInfoExtractor.extract(msg), JSON.stringify({}), []);
-                    response = result.response;
+                    response = ResponseSizeFilter(result.response).filter();
                 }
                 if (response) {
-                    response = new ResponseSizeFilter(response).filter();
                     response = new CustomEmojiFilter(response).filter(this._client.guilds, msg.guild.id);
                     response = new ChannelMentionResolver(response).resolve(msg);
                     await outChannel.send(response);
