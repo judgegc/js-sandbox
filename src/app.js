@@ -108,6 +108,7 @@ class App {
 
             let response = null;
             let outChannel = msg.channel;
+            let isEmbed = false;
             try {
                 if (mock.type === 'command') {
                     if (!(this._customCommandsManager.hasCommand(msg.guild.id, mock.name) || this._guard.check(msg, mock.name))) {
@@ -118,13 +119,17 @@ class App {
                         .process(mock, msg.guild.id)
                         .execute(this._client, msg);
 
-                    if (result instanceof Object) {
+                    if (result instanceof Object && result.hasOwnProperty('output')) {
                         const out = result.output;
                         if (out.hasOwnProperty('channel') && typeof out.channel === 'string') {
                             const redirectedChannel = msg.guild.channels.get(out.channel);
                             if (redirectedChannel) {
                                 outChannel = redirectedChannel;
                             }
+                        }
+
+                        if (out.hasOwnProperty('embed') && out.embed === true) {
+                            isEmbed = true;
                         }
                     }
 
@@ -156,6 +161,9 @@ class App {
                 if (response) {
                     response = new CustomEmojiFilter(response).filter(this._client.guilds, msg.guild.id);
                     response = new ChannelMentionResolver(response).resolve(msg);
+                    if (isEmbed) {
+                        response = JSON.parse(response);
+                    }
                     await outChannel.send(response);
                 }
             }
