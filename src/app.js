@@ -151,7 +151,7 @@ class App {
                     }
 
                     const result = await this._sandboxManager.send(mock.content, ServerInfoExtractor.extract(msg), JSON.stringify({}), []);
-                    response = ResponseSizeFilter(result.response).filter();
+                    response = new ResponseSizeFilter(result.response).filter();
                 }
                 if (response) {
                     response = new CustomEmojiFilter(response).filter(this._client.guilds, msg.guild.id);
