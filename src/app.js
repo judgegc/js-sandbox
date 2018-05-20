@@ -119,6 +119,10 @@ class App {
                         .process(mock, msg.guild.id)
                         .execute(this._client, msg);
 
+                    if (!msg.channel.permissionsFor(this._client.user).has('SEND_MESSAGES')) {
+                        return;
+                    }
+
                     if (result instanceof Object && result.hasOwnProperty('output')) {
                         const out = result.output;
                         if (out.hasOwnProperty('channel') && typeof out.channel === 'string') {
@@ -134,10 +138,6 @@ class App {
                     }
 
                     response = typeof result === 'string' ? result : result.response;
-
-                    if (!msg.channel.permissionsFor(this._client.user).has('SEND_MESSAGES')) {
-                        return;
-                    }
                 } else if (mock.type === 'source_code' && settings['js-sandbox']['prefix'].includes(mock.language.toLowerCase())) {
                     const customCmdParser = new CustomCommandParser();
                     if (customCmdParser.isCustomCmdSourceCode(mock.content)) {
