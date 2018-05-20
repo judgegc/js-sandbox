@@ -16,7 +16,6 @@
     "bytes": "^3.0.0",
     "color-name": "^1.1.3",
     "discord.js": "^11.2.1",
-    "moment": "^2.22.1",
     "mongodb": "^2.2.33",
     "pretty-ms": "^3.0.1",
     "request": "^2.83.0",

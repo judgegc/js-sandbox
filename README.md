@@ -14,7 +14,6 @@
 * [Simple-statistics](https://github.com/simple-statistics/simple-statistics)
 * [Pretty-ms](https://github.com/sindresorhus/pretty-ms)
 * [request](https://github.com/expressjs/express)
-* [moment](https://github.com/moment/moment)
 
 ## Commands
 
