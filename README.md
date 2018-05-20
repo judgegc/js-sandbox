@@ -118,6 +118,48 @@ Counter: 2
 !counter
 Counter: 3
 ```
+## Out flags
+Control flow flags
+### $out.channel
+Usage:
+```js
+$out.channel = '1234567';
+```
+
+Example shows, how to redirect command response to another channel.
+```js
+'custom command'
+'cmd=say'
+if (arguments.length >=2 ) {
+    $out.channel = arguments[0];
+    console.log(arguments.slice(1).join(' '));
+    state.channel = $in.channel.id;
+}
+```
+```
+!say 123456 "Hi"
+Hi
+```
+### $out.embed
+Command response interpret as an embed object.
+
+[Embed object](https://discordapp.com/developers/docs/resources/channel#embed-object-embed-structure)
+
+Usage:
+```js
+$out.embed = true;
+```
+```js
+$out.embed = true;
+console.log({embed: {
+    author: {
+        name: 'Discord user'
+    },
+    fields: [
+        {name: 'Title', value: 'some text'}
+    ]
+}});
+```
 
 # How to install
 [Dev instance](https://discordapp.com/oauth2/authorize?client_id=368800242948243457&scope=bot&permissions=3072)
