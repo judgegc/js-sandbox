@@ -148,7 +148,7 @@ class App {
 
                         const foundCcmd = this._customCommandsManager.getCommand(msg.guild.id, ccmd.name);
                         if (foundCcmd && foundCcmd.owner !== msg.author.id) {
-                            const ownerObj = client.users.get(foundCmd.owner);
+                            const ownerObj = this._client.users.get(foundCcmd.owner);
                             throw new Error(`Command '${ccmd.name}' already owned by ${ownerObj ? ownerObj.username : foundCcmd.owner}`);
                         }
                         this._customCommandsManager.createCommand(msg.guild.id, msg.author.id, ccmd.name, ccmd.description, ccmd.sourceCode);
