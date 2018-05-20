@@ -19,7 +19,7 @@ const CustomCommandParser = require('./parsers/custom-command-parser');
 const SandboxManager = require('./js-sandbox/sandbox-manager');
 
 const { CustomEmojiFilter, ChannelMentionResolver, ResponseSizeFilter } = require('./filters');
-
+const EmbedValidator = require('./embed-validator');
 class App {
     async init() {
         const mongoConnStr = process.env['MONGODB_URI'] || process.env['MONGOLAB_URI'] || process.env['MONGOHQ_URL'];
@@ -163,6 +163,10 @@ class App {
                     response = new ChannelMentionResolver(response).resolve(msg);
                     if (isEmbed) {
                         response = JSON.parse(response);
+                        const embedValidationResult = new EmbedValidator().validate(response);
+                        if (!embedValidationResult.valid) {
+                            throw new Error(embedValidationResult.errors.map(x => x.stack).join('\n'));
+                        }
                     }
                     await outChannel.send(response);
                 }
