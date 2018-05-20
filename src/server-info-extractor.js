@@ -9,10 +9,17 @@ class ServerInfoExtractor {
             bot: m.user.bot,
             username: m.user.username,
             displayName: m.displayName,
+            displayColor: m.displayColor,
+            displayHexColor: m.displayHexColor,
+            avatar: m.user.avatar,
+            avatarUrl: m.user.avatarUrl,
+            defaultAvatarURL: m.user.defaultAvatarURL,
+            displayAvatarURL: m.user.displayAvatarURL,
             game: m.user.presence.game && m.user.presence.game.name,
             tag: m.user.tag,
             status: m.user.presence.status,
             discriminator: m.user.discriminator,
+            createdTimestamp: m.user.createdTimestamp,
             joinedTimestamp: m.joinedTimestamp,
             roles: m.roles
                 .filter(r => r.name !== '@everyone')
