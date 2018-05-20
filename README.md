@@ -133,7 +133,6 @@ Example shows, how to redirect command response to another channel.
 if (arguments.length >=2 ) {
     $out.channel = arguments[0];
     console.log(arguments.slice(1).join(' '));
-    state.channel = $in.channel.id;
 }
 ```
 ```
