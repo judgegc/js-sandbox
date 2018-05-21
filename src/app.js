@@ -162,7 +162,12 @@ class App {
                     response = new CustomEmojiFilter(response).filter(this._client.guilds, msg.guild.id);
                     response = new ChannelMentionResolver(response).resolve(msg);
                     if (isEmbed) {
-                        response = JSON.parse(response);
+                        try {
+                            response = JSON.parse(response);
+                        } catch (e) {
+                            throw new Error(response + '\n' + e.message);
+                        }
+
                         const embedValidationResult = new EmbedValidator().validate(response);
                         if (!embedValidationResult.valid) {
                             throw new Error(embedValidationResult.errors.map(x => x.stack).join('\n'));
