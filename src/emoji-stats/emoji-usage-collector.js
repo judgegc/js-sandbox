@@ -71,30 +71,6 @@ class EmojiUsageCollector extends EventEmitter {
         this.emit('stop');
     }
 
-    /**
-     * @param {string} serverId
-     * @param {Object} settings
-     */
-    changeSettings(serverId, settings) {
-        const serverSettings = this.stats.get(serverId);
-        if (serverSettings) {
-            for (const prop in settings) {
-                if (!settings.hasOwnProperty(prop)) {
-                    continue;
-                }
-                serverSettings[prop] = settings[prop];
-            }
-        } else {
-            throw new Error('Configure server with incomplete settings');
-        }
-
-        if (!this._isRun && this.hasEnabled()) {
-            this._start();
-        }
-        this.sheduleNearestFlush();
-        this.emit('settingsUpdate');
-    }
-
     onAddReaction(reaction, user) {
         if (!Util.isGuildTextChannel(reaction.message)) {
             return;
