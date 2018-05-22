@@ -228,8 +228,11 @@ class EmojiUsageCollector extends EventEmitter {
             throw new Error('Invalid channel id');
         }
 
-        if (property === 'interval' && !this._isValidInterval(value)) {
-            throw new RangeError(`Interval should be equal or greater than ${this.MIN_INTERVAL}`);
+        if (property === 'interval') {
+            if (!this._isValidInterval(value)) {
+                throw new RangeError(`Interval should be equal or greater than ${this.MIN_INTERVAL}`);
+            }
+            serverStats.flush = Date.now() + value;
         }
 
         serverStats[property] = value;
