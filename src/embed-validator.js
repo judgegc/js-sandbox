@@ -1,9 +1,7 @@
 const jsonschema = require('jsonschema');
 
 class EmbedValidator {
-    constructor(response) {
-        this._response = response;
-
+    constructor() {
         this._root = {
             type: 'object',
             properties: {
@@ -15,10 +13,10 @@ class EmbedValidator {
             id: '/Embed',
             type: 'object',
             properties: {
-                title: { 'type': 'string' },
-                type: { 'type': 'string' },
+                title: { type: 'string' },
+                type: { type: 'string' },
                 description: { 'type': 'string' },
-                url: { 'type': 'string' },
+                url: { type: 'string' },
                 timestamp: { type: 'date-time' },
                 color: { type: 'number' },
                 footer: { $ref: '/Footer' },
@@ -34,9 +32,9 @@ class EmbedValidator {
             id: '/Footer',
             type: 'object',
             properties: {
-                text: 'string',
-                icon_url: 'string',
-                proxy_icon_url: 'string'
+                text: { type: 'string' },
+                icon_url: { type: 'string' },
+                proxy_icon_url: { type: 'string' }
             }
         };
         this._image = {
