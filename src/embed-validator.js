@@ -19,7 +19,7 @@ class EmbedValidator {
                 type: { 'type': 'string' },
                 description: { 'type': 'string' },
                 url: { 'type': 'string' },
-                timestamp: { type: 'date' },
+                timestamp: { type: 'date-time' },
                 color: { type: 'number' },
                 footer: { $ref: '/Footer' },
                 image: { $ref: '/Image' },
