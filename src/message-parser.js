@@ -5,7 +5,7 @@ const Util = require('./util');
 class MessageParser {
     constructor() {
         const prefix = Util.escapeRegExp(settings['commands-prefix']);
-        this.cmdPattern = new RegExp(`^${prefix}(\\w+)(?: (.+))?`);
+        this.cmdPattern = new RegExp(`^${prefix}(\\w+)(?: ([\\w\\W]+))?`);
         this._argsParser = new ArgsParser();
     }
     parse(msg) {
