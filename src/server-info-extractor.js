@@ -4,6 +4,7 @@ class ServerInfoExtractor {
     static extract(msg) {
         const external = {};
         const members = [];
+        const emojis = [...msg.guild.emojis].map(x => ({id: x[0], name: x[1].name, createdTimestamp: x[1].createdTimestamp, animated: x[1].animated}));
         msg.channel.guild.members.forEach(m => members.push({
             id: m.user.id,
             bot: m.user.bot,
@@ -56,7 +57,7 @@ class ServerInfoExtractor {
             readablePermissions: this._readablePermissions(r[1].permissions),
             position: r[1].position
         }));
-        Object.assign(external, { members, channels, roles });
+        Object.assign(external, { members, channels, roles, emojis });
         const channel = { id: msg.channel.id, name: msg.channel.name, nsfw: msg.channel.nsfw };
         const author = { username: msg.author.username, id: msg.author.id, discriminator: msg.author.discriminator, bot: msg.author.bot };
 
