@@ -70,7 +70,7 @@ process.on('message', data => {
         const vm = new VM({
             timeout: EXECUTION_TIMEOUT,
             sandbox: {
-                state: commandState,
+                $state: commandState,
                 request: pRequest,
                 $out: output,
                 console: { log: (m) => response.push(typeof m === 'object' ? JSON.stringify(m) : m) }
@@ -79,7 +79,7 @@ process.on('message', data => {
 
         vm.freeze(Stat, 'Stat');
         vm.freeze(data.external, '$in');
-        vm.freeze(data.args, 'arguments');
+        vm.freeze(data.args, '$arguments');
         vm.freeze(prettyMs, 'Pms');
         vm.freeze(crypto, 'crypto');
         vm.freeze(url, 'url');
