@@ -3,9 +3,11 @@
 [Commands](#commands)
 
 [Custom commands](#custom-commands)
-* [arguments](#arguments)
 * [Http](#http)
-* [State](#state)
+* [$arguments](#arguments)
+* [$state](#state)
+* [$in](#in)
+* [$out](#out-flags)
 
 [Installation](#how-to-install)
 
@@ -62,21 +64,6 @@ And `'desc=this command output 42'` is additional information shows in `!cmdlist
 
 Use `!rmcmd nameCmd` for remove custom command.
 
-## arguments
-`arguments` is a built in variable available only in custom commands. Contains user input data, passed with command. The type of `arguments` is an [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array).
-```js
-'custom command'
-'cmd=args'
-console.log(arguments)
-```
-```
-!args
-[]
-!args 1 2 3 4
-["1","2","3","4"]
-!args 1 "argument with space" 2
-["1","argument with space","2"]
-```
 ## Http
 
 In your code available function [request](https://github.com/expressjs/express). Example:
@@ -95,7 +82,23 @@ request('http://api.ipify.org/?format=json', function (error, response, body) {
 {"ip":"1.2.3.4"}
 ```
 
-## State
+## $arguments
+`$arguments` is a built in variable available only in custom commands. Contains user input data, passed with command. The type of `$arguments` is an [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array).
+```js
+'custom command'
+'cmd=args'
+console.log($arguments)
+```
+```
+!args
+[]
+!args 1 2 3 4
+["1","2","3","4"]
+!args 1 "argument with space" 2
+["1","argument with space","2"]
+```
+
+## $state
 
 Also you can store some data between calls. 
 
@@ -103,11 +106,11 @@ For example. Next custom command prints, how many times it was called.
 ```js
 'custom command'
 'cmd=counter'
-if(state.counter === undefined)
-    state.counter = 1; //initialize state variable
+if($state.counter === undefined)
+    $state.counter = 1; //initialize state variable
 else
-    state.counter++; //increment state variable
-console.log(`Counter: ${state.counter}`)
+    $state.counter++; //increment state variable
+console.log(`Counter: ${$state.counter}`)
 ```
 
 ```
@@ -118,6 +121,84 @@ Counter: 2
 !counter
 Counter: 3
 ```
+
+## $in
+
+```ts
+{
+    members: {
+        id: string;
+        bot: boolean;
+        username: string;
+        displayName: string;
+        displayColor: number;
+        displayHexColor: string;
+        avatar: string;
+        defaultAvatarURL: string;
+        displayAvatarURL: string;
+        game: string;
+        tag: string;
+        status: string;
+        discriminator: string;
+        createdTimestamp: number;
+        joinedTimestamp: number;
+        roles: {
+            color: number;
+            createdTimestamp: number;
+            editable: boolean;
+            hexColor: string;
+            hoist: boolean;
+            id: string;
+            managed: boolean;
+            mentionable: boolean;
+            name: string;
+            permissions: number;
+            position: number;
+        }[];
+    }[];
+    channels: {
+        id: string;
+        name: string;
+        type: string;
+        createdTimestamp: number;
+    }[];
+    roles: {
+        color: number;
+        createdTimestamp: number;
+        editable: boolean;
+        hexColor: string;
+        hoist: boolean;
+        id: string;
+        managed: boolean;
+        mentionable: boolean;
+        name: string;
+        permissions: number;
+        readablePermissions: string[];
+        position: number;
+    }[];
+    emojis: {
+        id: string;
+        name: string;
+        createdTimestamp: number;
+        animated: boolean;
+    }[];
+    //channel where command was called
+    channel: {
+        id: string;
+        name: string;
+        nsfw: boolean;
+    };
+    //command caller
+    author: {
+        username: string;
+        id: string;
+        discriminator: string;
+        bot: boolean;
+    };
+}
+```
+
+
 ## Out flags
 Control flow flags
 ### $out.channel
@@ -130,9 +211,9 @@ Example shows, how to redirect command response to another channel.
 ```js
 'custom command'
 'cmd=say'
-if (arguments.length >=2 ) {
-    $out.channel = arguments[0];
-    console.log(arguments.slice(1).join(' '));
+if ($arguments.length >=2 ) {
+    $out.channel = $arguments[0];
+    console.log($arguments.slice(1).join(' '));
 }
 ```
 ```
