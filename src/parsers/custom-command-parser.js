@@ -7,6 +7,15 @@ class CustomCommandParser {
         this._rNewLine = /\r\n|\r|\n/;
     }
 
+    _cutHeaders(sourceCode, count) {
+        let offset = 0;
+        for (let nl = 0; nl < count; ++nl) {
+            offset += sourceCode.substr(offset).search(this._rNewLine) + 1;
+        }
+
+        return sourceCode.substr(offset);
+    }
+
     isCustomCmdSourceCode(content) {
         const lines = content.split(this._rNewLine, 1);
         return lines.length && this._rCustomHeader.test(lines[0]);
@@ -31,7 +40,7 @@ class CustomCommandParser {
             return `Error. Custom command max length is: ${COMMAND_MAX_LENGTH}`;
         }
 
-        return { name: cmdNameFound[2], description, sourceCode: content };
+        return { name: cmdNameFound[2], description, sourceCode: this._cutHeaders(content, descFound? 3: 2) };
     }
 }
 
