@@ -1,3 +1,4 @@
+const minify = require('babel-minify')
 
 class CustomCommandParser {
     constructor() {
@@ -5,6 +6,10 @@ class CustomCommandParser {
         this._rCustomName = /^(['"])cmd=(\w+)\1;?$/;
         this._rCustomDesc = /^(['"])desc=(.+)\1;?$/;
         this._rNewLine = /\r\n|\r|\n/;
+    }
+
+    _minify(sourceCode) {
+        return  minify(sourceCode).code;
     }
 
     _cutHeaders(sourceCode, count) {
@@ -40,7 +45,7 @@ class CustomCommandParser {
             return `Error. Custom command max length is: ${COMMAND_MAX_LENGTH}`;
         }
 
-        return { name: cmdNameFound[2], description, sourceCode: this._cutHeaders(content, descFound? 3: 2) };
+        return { name: cmdNameFound[2], description, sourceCode: this._minify(this._cutHeaders(content, descFound? 3: 2)) };
     }
 }
 
