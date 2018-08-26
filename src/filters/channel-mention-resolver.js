@@ -14,7 +14,7 @@ class ChannelMentionResolver {
                     msg.guild.channels.get(name)) {
                     return m;
                 }
-                const channel = msg.guild.channels.find('name', name);
+                const channel = msg.guild.channels.find(x => x.name === name);
                 return channel || m;
             });
     }

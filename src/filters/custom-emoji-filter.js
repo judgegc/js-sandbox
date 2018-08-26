@@ -14,7 +14,7 @@ class CustomEmojiFilter {
                 guildList[0] = temp;
 
                 for (const guild of guildList.map(x => x[1])) {
-                    const emojiFull = guild.emojis.find('name', emoji);
+                    const emojiFull = guild.emojis.find(x => x.name === emoji);
                     if (emojiFull) {
                         return emojiFull;
                     }
