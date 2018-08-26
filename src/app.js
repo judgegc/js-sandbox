@@ -17,6 +17,7 @@ const CommandFactory = require('./command-factory');
 const ServerInfoExtractor = require('./server-info-extractor');
 const CustomCommandParser = require('./parsers/custom-command-parser');
 const SandboxManager = require('./js-sandbox/sandbox-manager');
+const PersistentSchedulerService = require('./persistent-scheduler-service');
 
 const { CustomEmojiFilter, ChannelMentionResolver, ResponseSizeFilter } = require('./filters');
 const EmbedValidator = require('./embed-validator');
@@ -37,7 +38,8 @@ class App {
         this._statsStorage = new EmojiStatsStorage(this._db);
         this._collector = new EmojiUsageCollector(this._client, await this._statsStorage.loadAll());
         this._guard = new PersistentExecutionPolicy(this._db);
-        this._commandFactory = new CommandFactory(this._customCommandsManager, this._collector);
+        this._schedulerService = new PersistentSchedulerService(this._customCommandsManager, this._client, this._db);
+        this._commandFactory = new CommandFactory(this._customCommandsManager, this._collector, this._schedulerService);
         this._cmdProc = new CommandProcessor(this._commandFactory, this._sandboxManager, this._customCommandsManager);
     }
 
@@ -45,6 +47,8 @@ class App {
         const botToken = process.env['bot-token'] || settings['bot-token'];
 
         await this.init();
+        await this._schedulerService.loadTasks();
+        this._schedulerService.start();
 
         this._sandboxManager.start();
 

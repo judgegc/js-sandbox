@@ -1,11 +1,12 @@
 const { GcCommand, MemoryUsageCommand, SayCommand, ReactCommand, ReactStrCommand, ServersCommand,
     SubscribeCommand, UnsubscribeCommand, ColorCommand, PinCommand, UnpinCommand, EmojiUsageStatsCommand,
-    RemoveCustomCommand, CommandListCommand } = require('./commands');
+    RemoveCustomCommand, CommandListCommand, ScheduleCommand } = require('./commands');
 
 class CommandFactory {
-    constructor(customCommandmanager, emjCollector) {
+    constructor(customCommandmanager, emjCollector, schedulerService) {
         this._customCommandManager = customCommandmanager;
         this._emjCollector = emjCollector;
+        this._schedulerService = schedulerService;
         this._commands = {
             gc: { class: GcCommand },
             mem: { class: MemoryUsageCommand },
@@ -20,7 +21,8 @@ class CommandFactory {
             unpin: { class: UnpinCommand },
             emjrating: { class: EmojiUsageStatsCommand, params: [this._emjCollector] },
             rmcmd: { class: RemoveCustomCommand, params: [this._customCommandManager] },
-            cmdlist: { class: CommandListCommand, params: [this._customCommandManager] }
+            cmdlist: { class: CommandListCommand, params: [this._customCommandManager] },
+            schedule: { class: ScheduleCommand, params: [this._schedulerService] }
         };
     }
     create(command, args) {

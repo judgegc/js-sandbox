@@ -14,5 +14,6 @@ module.exports = {
     EmojiUsageStatsCommand: require('./emoji-usage-stats-command'),
     RemoveCustomCommand: require('./remove-custom-command'),
     CommandListCommand: require('./command-list-command'),
-    CustomCommand: require('./custom-command')
+    CustomCommand: require('./custom-command'),
+    ScheduleCommand: require('./schedule-command')
 };
