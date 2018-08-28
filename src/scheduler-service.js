@@ -65,7 +65,7 @@ class SchedulerService {
         const fidx = this._tasks.findIndex(x => x.id === taskId);
 
         if (fidx === -1)
-            return;
+            return false;
 
         this._tasks.splice(fidx, 1);
 
@@ -74,10 +74,11 @@ class SchedulerService {
 
         if (!this.hasTasks()) {
             this.stop();
-            return;
+            return true;
         }
 
         this._calculateTaskDelay();
+        return true;
     }
 
     hasTasks() {
@@ -93,7 +94,7 @@ class SchedulerService {
     }
 
     start() {
-        if (this.isRunning())
+        if (this.isRunning() || !this.hasTasks())
             return;
 
         this._taskTimer = setTimeout(() => this._tick(), this._schedulerTick);

@@ -9,6 +9,9 @@ class PersistentSchedulerService extends SchedulerService {
     async loadTasks() {
         this._tasks = (await this.storage.find().toArray()).map(x => ({ ...x, id: x._id }));
         this._calculateTaskDelay();
+
+        if (!this.isRunning())
+            this.start();
     }
 
     async schedule(serverId, channelId, commandName, args) {
@@ -21,8 +24,12 @@ class PersistentSchedulerService extends SchedulerService {
     }
 
     async cancel(taskId) {
-        super.cancel(taskId);
+        const canceled = super.cancel(taskId);
+        if (!canceled)
+            return false;
+
         await this.storage.deleteOne({ _id: taskId });
+        return true;
     }
 }
 

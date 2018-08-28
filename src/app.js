@@ -48,7 +48,6 @@ class App {
 
         await this.init();
         await this._schedulerService.loadTasks();
-        this._schedulerService.start();
 
         this._sandboxManager.start();
 
