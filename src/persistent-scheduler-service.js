@@ -3,7 +3,6 @@ const SchedulerService = require('./scheduler-service');
 class PersistentSchedulerService extends SchedulerService {
     constructor(customCommandsManager, client, storage) {
         super(customCommandsManager, client);
-        this.INDEX_DELIM = '_';
         this.storage = storage.collection('scheduler');
     }
 
@@ -14,6 +13,9 @@ class PersistentSchedulerService extends SchedulerService {
 
     async schedule(serverId, channelId, commandName, args) {
         const id = super.schedule(serverId, channelId, commandName, args);
+        if (id === null)
+            return null;
+
         await this.storage.insertOne({ _id: id, serverId, channelId, commandName, args: args });
         return id;
     }
